@@ -1,7 +1,7 @@
 #include "quadtree.h"
-#include "auxiliary.h"
+//#include "auxiliary.h"
 #include "region.h"
-#include <Fade_2D.h>
+#include "Fade_2D.h"
 #include <Eigen/Sparse>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>

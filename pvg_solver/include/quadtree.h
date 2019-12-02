@@ -2,7 +2,7 @@
 #define QUADTREE_H
 #include "tree.hh"
 #include "structure.h"
-#include "point_vector.h"
+#include "global.h"
 #include <vector>
 #include <Eigen/Sparse>
 #include <opencv2/core.hpp>

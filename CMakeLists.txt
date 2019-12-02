@@ -87,16 +87,16 @@ set(PVG_SOLVER
 #        pvg_solver/include/
 #        pvg_solver/include/
 #        pvg_solver/include/
-#        pvg_solver/include/quadtree.h
-#        pvg_solver/include/region.h
-#        pvg_solver/include/structure.h
+        pvg_solver/include/quadtree.h
+        pvg_solver/include/region.h
+        pvg_solver/include/structure.h
         pvg_solver/include/tree.hh
 #        pvg_solver/src/
 #        pvg_solver/src/
 #        pvg_solver/src/
 #        pvg_solver/src/
-#        pvg_solver/src/quadtree.cpp
-#        pvg_solver/src/region.cpp
+        pvg_solver/src/quadtree.cpp
+        pvg_solver/src/region.cpp
         )
 
 set(TINYXML

@@ -301,7 +301,7 @@ void PVGBuffer::discretization()
         lap_edges[i].updateAll();
     }
 
-    //static std::unique_ptr<Region> region;
+    static std::unique_ptr< Region > region;
     static cv::Mat laplacian_image;
 
     zoomIn(1.0, QPoint(0, 0));
@@ -315,7 +315,7 @@ void PVGBuffer::discretization()
          {
              for (int i = 0; i < max_threads; i++)
              {
-                 regions[i].reset(new CRegionFZ(size.height(), size.width(), QVector<SQ_Stroke>(), 1, cv::Vec2i(0, 0)));
+                 regions[i].reset(new CRegionFZ(size.height(), size.width(), QVector< SQ_Stroke >(), 1, cv::Vec2i(0, 0)));
              }
          },
 

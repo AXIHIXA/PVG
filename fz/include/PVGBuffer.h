@@ -5,6 +5,8 @@
 #ifndef PVG_PVGBUFFER_H
 #define PVG_PVGBUFFER_H
 
+
+#include "region.h"
 #include "RegionFZ.h"
 #include "Strokes.h"
 #include "tinyxml2.h"
@@ -68,9 +70,12 @@ private:
 
     QVector< int > overwrite_id;
 
-    // regions
+    // CRegion_FZ regions buffer
     std::vector< std::unique_ptr< CRegionFZ > > regions;
     cv::Mat result;
+
+    // PVG solver region for Voronoi Diagrams
+
 };
 
 #endif //PVG_PVGBUFFER_H
