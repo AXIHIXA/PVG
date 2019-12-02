@@ -1,5 +1,5 @@
 #include "quadtree.h"
-//#include "auxiliary.h"
+#include "auxiliary.h"
 #include "region.h"
 #include "Fade_2D.h"
 #include <Eigen/Sparse>
@@ -728,10 +728,10 @@ bool QuadTree::with_inner_node() const
 
 int QuadTree::search_level1(const CPoint2f& p) const
 {
-	unsigned int ind_row = unsigned int((p[0] - original[0]) / step);
-	unsigned int ind_col = unsigned int((p[1] - original[1]) / step);
+	unsigned int ind_row = static_cast<unsigned int>((p[0] - original[0]) / step);
+	unsigned int ind_col = static_cast<unsigned int>((p[1] - original[1]) / step);
 
-	return ind_row*width + ind_col;
+	return ind_row * width + ind_col;
 }
 
 int QuadTree::get_number_of_inner_pixels() const

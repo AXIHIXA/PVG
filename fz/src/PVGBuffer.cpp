@@ -83,7 +83,7 @@ bool PVGBuffer::open(const QString & filename, double scale)
 
     tinyxml2::XMLElement * dimensionElement = rootNode->FirstChildElement("dim");
     const char * dim = dimensionElement->GetText();
-    std::vector< int > num = pvgaux::split_to_num< int >(dim);
+    std::vector< int > num = split_to_num< int >(dim);
 
     if (num.empty())
     {
@@ -136,7 +136,7 @@ bool PVGBuffer::open(const QString & filename, double scale)
     lap_edges_control_parameters.clear();
     tinyxml2::XMLElement * lap_edges_control_parameters_ele = rootNode->FirstChildElement(
             "lap_edges_control_parameters");
-    std::vector< float > num1 = pvgaux::split_to_num< float >(lap_edges_control_parameters_ele->GetText());
+    std::vector< float > num1 = split_to_num< float >(lap_edges_control_parameters_ele->GetText());
 
     for (size_t i = 0; i < num1.size(); i++)
     {
@@ -150,7 +150,7 @@ bool PVGBuffer::open(const QString & filename, double scale)
     lap_regions_control_parameters.clear();
     tinyxml2::XMLElement * lap_regions_control_parameters_ele = rootNode->FirstChildElement(
             "lap_regions_control_parameters");
-    std::vector< float > num2 = pvgaux::split_to_num< float >(lap_regions_control_parameters_ele->GetText());
+    std::vector< float > num2 = split_to_num< float >(lap_regions_control_parameters_ele->GetText());
 
     if (num2.size() == 6 * lap_regions.size())
     {
@@ -178,7 +178,7 @@ bool PVGBuffer::open(const QString & filename, double scale)
 
     if (lap_points_ele != nullptr)
     {
-        std::vector< double > num3 = pvgaux::split_to_num< double >(lap_points_ele->GetText());
+        std::vector< double > num3 = split_to_num< double >(lap_points_ele->GetText());
 
         for (size_t i = 0; i < num3.size(); i += 5)
         {
@@ -231,7 +231,7 @@ SQ_Stroke PVGBuffer::parseStroke(const tinyxml2::XMLElement * SQ_Stroke_ele, dou
 
     const tinyxml2::XMLElement * s_points_ele = SQ_Stroke_ele->FirstChildElement("s_points");
     const char * str1 = s_points_ele->GetText();
-    std::vector< double > num1 = pvgaux::split_to_num< double >(str1);
+    std::vector< double > num1 = split_to_num< double >(str1);
 
     for (size_t i = 0; i < num1.size(); i += 2)
     {
@@ -245,7 +245,7 @@ SQ_Stroke PVGBuffer::parseStroke(const tinyxml2::XMLElement * SQ_Stroke_ele, dou
         if (s_properties_ele != nullptr)
         {
             const char * str2 = s_properties_ele->GetText();
-            std::vector< int > num2 = pvgaux::split_to_num< int >(str2);
+            std::vector< int > num2 = split_to_num< int >(str2);
 
             for (size_t i = 0; i < num2.size(); i += 8)
             {
@@ -274,12 +274,12 @@ SQ_Stroke PVGBuffer::parseStroke(const tinyxml2::XMLElement * SQ_Stroke_ele, dou
 
     const tinyxml2::XMLElement * s_mode_ele = SQ_Stroke_ele->FirstChildElement("s_mode");
     const char * str3 = s_mode_ele->GetText();
-    std::vector< int > num3 = pvgaux::split_to_num< int >(str3);
+    std::vector< int > num3 = split_to_num< int >(str3);
     stroke.s_mode = SQ_Stroke::StrokeMode(num3[0]);
 
     const tinyxml2::XMLElement * s_mdmode_ele = SQ_Stroke_ele->FirstChildElement("s_mdmode");
     const char * str4 = s_mdmode_ele->GetText();
-    std::vector< int > num4 = pvgaux::split_to_num< int >(str4);
+    std::vector< int > num4 = split_to_num< int >(str4);
     stroke.s_mdmode = SQ_Stroke::MDMode(num4[0]);
 
     return stroke;
@@ -328,7 +328,7 @@ void PVGBuffer::discretization()
              region_mask = reg.getRegion();
              side_mask = reg.get_sideMask();
 
-             //region.reset(new Region(region_mask, side_mask));
+             region.reset(new Region(region_mask, side_mask));
 
              overwrite_id.clear();
 

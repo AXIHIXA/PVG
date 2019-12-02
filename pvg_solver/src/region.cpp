@@ -719,7 +719,7 @@ int Region::get_edge_id(const CPoint2f& p) const
 		int id = get_curve_index(pt);
 		if (id > 0)
 		{
-			int n = strokes[id - 1].side_endpoint(QPointF(pt[1], pt[0]), scale);
+			int n = strokes[id - 1].sideEndpoint(QPointF(pt[1], pt[0]), scale);
 			if (n > 0) return id;
 			else if (n < 0) return -id;
 		}
@@ -732,7 +732,7 @@ int Region::get_edge_id(const CPoint2f& p) const
 			id = abs(side_mask.at<int>(static_cast<int>(p[0]), static_cast<int>(p[1])));
 			if (id > 0)
 			{
-				int n = strokes[id - 1].side_tangent(QPointF(pt[1], pt[0]));
+				int n = strokes[id - 1].sideTangent(QPointF(pt[1], pt[0]));
 				if (n > 0) return id;
 				else if (n < 0) return -id;
 			}

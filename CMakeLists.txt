@@ -85,7 +85,7 @@ set(FZ
 set(PVG_SOLVER
 #        pvg_solver/include/
 #        pvg_solver/include/
-#        pvg_solver/include/
+        pvg_solver/include/auxiliary.h
 #        pvg_solver/include/
         pvg_solver/include/quadtree.h
         pvg_solver/include/region.h
@@ -93,7 +93,7 @@ set(PVG_SOLVER
         pvg_solver/include/tree.hh
 #        pvg_solver/src/
 #        pvg_solver/src/
-#        pvg_solver/src/
+        pvg_solver/src/auxiliary.cpp
 #        pvg_solver/src/
         pvg_solver/src/quadtree.cpp
         pvg_solver/src/region.cpp
@@ -108,8 +108,8 @@ set(SOURCE_FILES
         ${ALGLIB}
         ${FADE2D}
         ${FZ}
+        ${PVG_SOLVER}
         ${TINYXML}
-        main/include/auxiliary.h
         main/include/debug.h
         main/include/global.h
         main/src/main.cpp
