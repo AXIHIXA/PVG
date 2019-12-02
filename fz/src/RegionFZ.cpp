@@ -952,53 +952,75 @@ pair <Mat, Rect> CRegionFZ::lapRegion(const SQ_Stroke & ls_stroke)
 
 
 #ifdef outFZ
+
 void CRegionFZ::out()
 {
     //printf("***** number of regions: %d *****\n",size);
-    Mat img(height, width, CV_32SC3), img_c(height, width, CV_32SC3), img_c_n(height, width, CV_32SC3), \
-        img_s(height, width, CV_32SC3);
-    int mk, s;
-    Vec3i mk_c, mk_c_n;
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++)	{
-            mk = regionMask.at<int>(y, x);
-            s = sideMask.at<int>(y, x);
-            for (int i = 0; i < 3; i++) {
-                mk_c[i] = mk_c_n[i] = (int)colorMask.at<Vec3f>(y, x)[i];
-                if (nodeMask.at<bool>(y, x)) {
+
+    Mat img(height, width, CV_32SC3);
+    Mat img_c(height, width, CV_32SC3);
+    Mat img_c_n(height, width, CV_32SC3);
+    Mat img_s(height, width, CV_32SC3);
+
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            int mk = regionMask.at< int >(y, x);
+            int s = sideMask.at< int >(y, x);
+
+            Vec3i mk_c, mk_c_n;
+
+            for (int i = 0; i < 3; i++)
+            {
+                mk_c[i] = mk_c_n[i] = (int) colorMask.at< Vec3f >(y, x)[i];
+
+                if (nodeMask.at< bool >(y, x))
+                {
                     mk_c_n[i] /= 1.5;
                 }
-                if (nm1.at<bool>(y, x)) {
+
+                if (nm1.at< bool >(y, x))
+                {
                     mk_c_n[i] /= 2;
                 }
-                img.at<Vec3i>(y, x)[i] = (int)((double)abs(mk) / (double)size * 255.0);
-                if (mk < 0) {
+
+                img.at< Vec3i >(y, x)[i] = (int) ((double) abs(mk) / (double) size * 255.0);
+
+                if (mk < 0)
+                {
                     //img.at<Vec3i>(y, x)[i] -= 255 / size / 2;
-                    img.at<Vec3i>(y, x)[i] = 255;
+                    img.at< Vec3i >(y, x)[i] = 255;
                 }
             }
-            //if (mk_c == Vec3i(-1,-1,-1)) {
-            if (mk_c == Vec3i(0, 0, 0) && mk > 0) {
-                img_c.at<Vec3i>(y, x) = Vec3i(255, 255, 255);
-                img_c_n.at<Vec3i>(y, x) = Vec3i(255, 255, 255);
+
+            if (mk_c == Vec3i(0, 0, 0) && mk > 0)
+            {
+                img_c.at< Vec3i >(y, x) = Vec3i(255, 255, 255);
+                img_c_n.at< Vec3i >(y, x) = Vec3i(255, 255, 255);
             }
-            else {
-                img_c.at<Vec3i>(y, x) = mk_c;
-                img_c_n.at<Vec3i>(y, x) = mk_c_n;
+            else
+            {
+                img_c.at< Vec3i >(y, x) = mk_c;
+                img_c_n.at< Vec3i >(y, x) = mk_c_n;
                 //img.at<Vec3i>(y, x) = mk_c;
             }
 
-            if (s < 0) {
-                img_s.at<Vec3i>(y, x) = Vec3i(255, 255, 255);
+            if (s < 0)
+            {
+                img_s.at< Vec3i >(y, x) = Vec3i(255, 255, 255);
             }
-            else if (s>0) {
-                img_s.at<Vec3i>(y, x) = Vec3i(127, 127, 127);
+            else if (s > 0)
+            {
+                img_s.at< Vec3i >(y, x) = Vec3i(127, 127, 127);
             }
-            else {
-                img_s.at<Vec3i>(y, x) = Vec3i(0, 0, 0);
+            else
+            {
+                img_s.at< Vec3i >(y, x) = Vec3i(0, 0, 0);
             }
         }
     }
+
     imwrite("resultImg/_region_mask.bmp", img);
     imwrite("resultImg/_color_mask.bmp", img_c);
     imwrite("resultImg/_color_mask_with_nodes.bmp", img_c_n);

@@ -5,8 +5,8 @@
 #include "auxiliary.h"
 #include "debug.h"
 #include "global.h"
-#include <ParseColor.hpp>
 #include "PVGBuffer.h"
+#include <ParseColor.hpp>
 #include <QFile>
 #include <tbb/tbb.h>
 #include <thread>

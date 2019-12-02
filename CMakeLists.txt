@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(PVG)
 set(CMAKE_CXX_STANDARD 11)
 
+# These 3 options for Qt support
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -41,6 +42,33 @@ set(ALGLIB
         alglib/src/statistics.cpp
         )
 
+set(FADE2D
+        fade2d/include/Bbox2.h
+        fade2d/include/Circle2.h
+        fade2d/include/Color.h
+        fade2d/include/common.h
+        fade2d/include/ConstraintGraph2.h
+        fade2d/include/ConstraintSegment2.h
+        fade2d/include/Edge2.h
+        fade2d/include/Fade_2D.h
+        fade2d/include/fadeVersion.h
+        fade2d/include/freeFunctions.h
+        fade2d/include/Label.h
+        fade2d/include/MeshGenParams.h
+        fade2d/include/MsgBase.h
+        fade2d/include/Performance.h
+        fade2d/include/Point2.h
+        fade2d/include/Segment2.h
+        fade2d/include/SegmentChecker.h
+        fade2d/include/testDataGenerators.h
+        fade2d/include/Triangle2.h
+        fade2d/include/TriangleAroundVertexIterator.h
+        fade2d/include/UserPredicates.h
+        fade2d/include/Vector2.h
+        fade2d/include/Visualizer2.h
+        fade2d/include/Zone2.h
+        )
+
 set(FZ
         fz/include/Geometry.hpp
         fz/include/ParseColor.hpp
@@ -54,6 +82,23 @@ set(FZ
         fz/src/PVGBuffer.cpp
         )
 
+set(PVG_SOLVER
+#        pvg_solver/include/
+#        pvg_solver/include/
+#        pvg_solver/include/
+#        pvg_solver/include/
+#        pvg_solver/include/quadtree.h
+#        pvg_solver/include/region.h
+#        pvg_solver/include/structure.h
+        pvg_solver/include/tree.hh
+#        pvg_solver/src/
+#        pvg_solver/src/
+#        pvg_solver/src/
+#        pvg_solver/src/
+#        pvg_solver/src/quadtree.cpp
+#        pvg_solver/src/region.cpp
+        )
+
 set(TINYXML
         tinyxml/include/tinyxml2.h
         tinyxml/src/tinyxml2.cpp
@@ -61,6 +106,7 @@ set(TINYXML
 
 set(SOURCE_FILES
         ${ALGLIB}
+        ${FADE2D}
         ${FZ}
         ${TINYXML}
         main/include/auxiliary.h
@@ -71,9 +117,16 @@ set(SOURCE_FILES
 
 set(ALL_INCLUDE_DIRS
         alglib/include
+        fade2d/include
         fz/include
         main/include
+        pvg_solver/include
         tinyxml/include
+        )
+
+set(FADE2D_LIBS
+        ${CMAKE_SOURCE_DIR}/fade2d/lib/libfade2d.so
+        ${CMAKE_SOURCE_DIR}/fade2d/lib/libfade25d.so
         )
 
 set(TBB_LIBS
@@ -84,6 +137,7 @@ set(TBB_LIBS
 
 set(ALL_LIBS
         ${Boost_LIBRARIES}
+        ${FADE2D_LIBS}
         ${OpenCV_LIBS}
         ${TBB_LIBS}
         Eigen3::Eigen
@@ -94,6 +148,7 @@ set(ALL_LIBS
 
 add_definitions(-DST_COLOR -DST_VERBOSE)
 add_definitions(-DSAVE_DECOMPRESSED_PVG_XML)
+add_definitions(-DoutFZ)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ALL_INCLUDE_DIRS})

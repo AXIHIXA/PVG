@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "PVGBuffer.h"
+#include "tree.hh"
 #include <cstdlib>
 
 
