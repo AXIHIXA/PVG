@@ -72,31 +72,33 @@ set(FADE2D
 set(FZ
         fz/include/Geometry.hpp
         fz/include/ParseColor.hpp
+        fz/include/pathstroke_auxiliary.h
         fz/include/psimpl.h
-        fz/include/PVGBuffer.h
+        fz/include/PVG.h
         fz/include/RegionFZ.h
         fz/include/SamplSimpl.hpp
         fz/include/Strokes.h
+        fz/src/pathstroke_auxiliary.cpp
         fz/src/RegionFZ.cpp
         fz/src/Strokes.cpp
-        fz/src/PVGBuffer.cpp
+        fz/src/PVG.cpp
         )
 
-set(PVG_SOLVER
-#        pvg_solver/include/
-#        pvg_solver/include/
-        pvg_solver/include/auxiliary.h
-#        pvg_solver/include/
-        pvg_solver/include/quadtree.h
-        pvg_solver/include/region.h
-        pvg_solver/include/structure.h
-        pvg_solver/include/tree.hh
-#        pvg_solver/src/
-#        pvg_solver/src/
-        pvg_solver/src/auxiliary.cpp
-#        pvg_solver/src/
-        pvg_solver/src/quadtree.cpp
-        pvg_solver/src/region.cpp
+set(SOLVER
+#        solver/include/
+#        solver/include/
+        solver/include/auxiliary.h
+#        solver/include/
+        solver/include/quadtree.h
+        solver/include/region.h
+        solver/include/structure.h
+        solver/include/tree.hh
+#        solver/src/
+#        solver/src/
+        solver/src/auxiliary.cpp
+#        solver/src/
+        solver/src/quadtree.cpp
+        solver/src/region.cpp
         )
 
 set(TINYXML
@@ -108,7 +110,7 @@ set(SOURCE_FILES
         ${ALGLIB}
         ${FADE2D}
         ${FZ}
-        ${PVG_SOLVER}
+        ${SOLVER}
         ${TINYXML}
         main/include/debug.h
         main/include/global.h
@@ -120,7 +122,7 @@ set(ALL_INCLUDE_DIRS
         fade2d/include
         fz/include
         main/include
-        pvg_solver/include
+        solver/include
         tinyxml/include
         )
 
@@ -141,6 +143,7 @@ set(ALL_LIBS
         ${OpenCV_LIBS}
         ${TBB_LIBS}
         Eigen3::Eigen
+        pthread
         Qt5::Core
         Qt5::Gui
         Qt5::Widgets

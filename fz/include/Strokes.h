@@ -69,8 +69,8 @@ public:
     QVector< PointProperties > pps;
     QVector< int > idx;
 
-    MDMode s_mdmode;  // define mono/dual line !!!DIFFERENT from s_mode!!! mono=0 dual=1
-    StrokeMode s_mode;
+    StrokeMode s_mode;  // closed=0 open=1
+    MDMode s_mdmode;    // define mono/dual line !!!DIFFERENT from s_mode!!! mono=0 dual=1
 };
 
 

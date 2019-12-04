@@ -548,12 +548,20 @@ void CRegionFZ::plotLastStroke(const SQ_Stroke & ls_stroke, int mode)  //mode ==
         }
         else if (mode == 1)  //  mode == 1: laplacian region
         {
+//            plotLine(
+//                    (int) ls_stroke.segs[k].y() + 0.5 - w00[0],
+//                    (int) ls_stroke.segs[k + 1].y() + 0.5 - w00[0],
+//                    (int) ls_stroke.segs[k].x() + 0.5 - w00[1],
+//                    (int) ls_stroke.segs[k + 1].x() + 0.5 - w00[1],
+//                    NULL, NULL, NULL, NULL, ls_stroke.s_mdmode, lastSide, false, f
+//            );
             plotLine(
                     (int) ls_stroke.segs[k].y() + 0.5 - w00[0],
                     (int) ls_stroke.segs[k + 1].y() + 0.5 - w00[0],
                     (int) ls_stroke.segs[k].x() + 0.5 - w00[1],
                     (int) ls_stroke.segs[k + 1].x() + 0.5 - w00[1],
-                    NULL, NULL, NULL, NULL, ls_stroke.s_mdmode, lastSide, false, f
+                    cv::Vec3f(), cv::Vec3f(), cv::Vec3f(), cv::Vec3f(),
+                    ls_stroke.s_mdmode, lastSide, false, f
             );
             if ((int) ls_stroke.segs[k].y() + 0.5 - w00[0] > br[0])
             {
