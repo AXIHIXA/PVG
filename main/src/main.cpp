@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-    PVG pvg("var/apple.pvg");
+    PVG pvg("var/egg.pvg");
 
     st_success();
     return EXIT_SUCCESS;

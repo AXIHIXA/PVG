@@ -18,18 +18,31 @@
 class PVG
 {
 public:
-    explicit PVG(const QString & filename, double sf = 1.0, double lsf = 1.0, const QPoint & w = QPoint(0, 0));
+    ///
+    /// PVG
+    /// \brief constructor
+    /// \param filename
+    /// \param sf
+    /// \param w
+    ///
+    explicit PVG(const QString & filename, double sf = 1.0, const QPoint & w = QPoint(0, 0));
 
     ~PVG() = default;
 
-    /// decompress .pvg file into xml
+    ///
+    /// decompress
+    /// \brief decompress .pvg file into xml and save to disk
     /// \param filename
-    void decompress(const QString & filename);
+    ///
+    static void decompress(const QString & filename);
 
 private:
-    /// parse .pvg file
+    ///
+    /// open
+    /// \brief parse & compute .pvg file
     /// \param filename
     /// \param scale
+    ///
     void open(const QString & filename, double scale);
 
     static SQ_Stroke parseStroke(const tinyxml2::XMLElement * SQ_Stroke_ele, double scale, bool parseProperty);
@@ -41,29 +54,31 @@ private:
     void evaluation(Region * region, const cv::Mat laplacian_image, int n_rings);
 
 private:
-    struct LapPoint
-    {
-        cv::Vec2i pt;
-        cv::Vec3f lap;
-    };
-
     // cpu capacity
     unsigned int max_threads;
 
+    ///
+    /// PVG primitives
+    ///
+
+    // size of this PVG image
+    QSize size;
+
     // resize magnifier
     double scaleFactor;
-    double lastScaleFactor;
     QPoint w00;
 
-    // PVG primitives
-    QSize size;                                                               // size of this PVG image
+    // primitives
 
-    QVector<SQ_Stroke> m_strokes;                                           // boundary color edges
+    // boundary color edges
+    QVector<SQ_Stroke> m_strokes;
 
-    QVector<SQ_Stroke> lap_edges;                                           // Laplacian edges
+    // Laplacian edges
+    QVector<SQ_Stroke> lap_edges;
     QVector<float> lap_edges_control_parameters;
 
-    QVector<SQ_Stroke> lap_regions;                                         // Laplacian regions
+    // Laplacian regions
+    QVector<SQ_Stroke> lap_regions;
     QVector<QPair<cv::Vec3f, cv::Vec3f> > lap_regions_control_parameters;
 
     // scaled PVG primitives
@@ -71,13 +86,16 @@ private:
     QVector<SQ_Stroke> lap_edges_scaled;
     QVector<SQ_Stroke> lap_regions_scaled;
 
-    // CRegion_FZ regions buffer
+    // CRegion_FZ regions buffer used for lap edges / regions parallel computation
     std::vector<std::unique_ptr<CRegionFZ> > regions;
+
+    ///
+    /// computed results
+    ///
+
+    // rendered final result
     cv::Mat result;
-
-    // PVG solver region for Voronoi Diagrams
-
 };
 
 
-#endif //PVG_PVG_H
+#endif  // PVG_PVG_H

@@ -1,7 +1,7 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
 
-#include "global.h"
+#include "point_vector.h"
 
 enum PointType
 {

@@ -2,10 +2,12 @@
 // Created by ax on 11/30/19.
 //
 
+
 #include "auxiliary.h"
 #include "debug.h"
 #include "global.h"
 #include "pathstroke_auxiliary.h"
+//#include "poisson_solver.h"
 #include "PVG.h"
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
@@ -16,19 +18,22 @@
 #include <thread>
 
 
-PVG::PVG(const QString & filename, double sf, double lsf, const QPoint & w)
+PVG::PVG(const QString & filename, double sf, const QPoint & w)
 {
     // cpu capacity
     max_threads = std::min(std::thread::hardware_concurrency(), 16U);
+    st_debug("max_threads = %u", max_threads);
     regions.resize(max_threads);
 
     // resize magnifier
     scaleFactor = sf;
-    lastScaleFactor = lsf;
     w00 = w;
 
     // open & solve
     open(filename, scaleFactor);
+    QPair<Region *, cv::Mat> res = discretization();
+    cv::imwrite("resultImg/lapimg.bmp", res.second);
+    evaluation(res.first, res.second, 4);
 }
 
 void PVG::decompress(const QString & filename)
@@ -78,7 +83,6 @@ void PVG::open(const QString & filename, double scale)
     /// update scale factor
     ///
 
-    lastScaleFactor = scaleFactor;
     scaleFactor = scale;
 
     ///
@@ -248,12 +252,6 @@ void PVG::open(const QString & filename, double scale)
             i--;
         }
     }
-
-    QPair<Region *, cv::Mat> res = discretization();
-
-    cv::imwrite("resultImg/lapimg.bmp", res.second);
-
-    //evaluation(res.first, res.second, 4);
 }
 
 SQ_Stroke PVG::parseStroke(const tinyxml2::XMLElement * SQ_Stroke_ele, double scale, bool parseProperty)
@@ -352,6 +350,12 @@ void PVG::zoomIn(double scale, const QPoint & cur_w00)
     path.parse(lap_regions_scaled, 2);
 }
 
+#ifdef QUADTREE_VORONOI_OUTPUT
+template <class T>
+static std::vector<std::vector<CPoint2i> >
+flood_fill(const cv::Mat & image, const T & zero, int n_neighbors, int region_id, const Region & region);
+#endif
+
 QPair<Region *, cv::Mat> PVG::discretization()
 {
     ///
@@ -370,6 +374,10 @@ QPair<Region *, cv::Mat> PVG::discretization()
 
     static std::unique_ptr<Region> region;
     static cv::Mat laplacian_image;
+
+#ifdef QUADTREE_VORONOI_OUTPUT
+    cv::Mat the_laplacian_image = cv::Mat::zeros(size.height(), size.width(), CV_32FC3);
+#endif
 
     zoomIn(1.0, QPoint(0, 0));
 
@@ -398,8 +406,6 @@ QPair<Region *, cv::Mat> PVG::discretization()
             region.reset(new Region(region_mask, side_mask));
         }
     );
-
-    clock_t t_ = clock();
 
     ///
     /// Laplacian edge generation
@@ -438,15 +444,15 @@ QPair<Region *, cv::Mat> PVG::discretization()
         threads[i].join();
     }
 
-    std::vector<std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f >> >> lap_curve_pts;
+    std::vector<std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f>>>> lap_curve_pts;
 
-    for (int r = 0; r < lap_edges_scaled.size(); ++r)
+    for (int r = 0; r < lap_edges_scaled.size(); r++)
     {
-        const std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f> > > & points_all = lap_edge_points[r];
+        const std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f>>> & points_all = lap_edge_points[r];
 
-        std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f> > > points(2);
+        std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f>>> points(2);
 
-        for (size_t i = 0; i < points_all[0].size(); ++i)
+        for (size_t i = 0; i < points_all[0].size(); i++)
         {
             if (region->is_inner_of_a_region(points_all[0][i].first[0], points_all[0][i].first[1]))
             {
@@ -454,7 +460,8 @@ QPair<Region *, cv::Mat> PVG::discretization()
                 points[0].push_back(points_all[0][i]);
             }
         }
-        for (size_t i = 0; i < points_all[1].size(); ++i)
+
+        for (size_t i = 0; i < points_all[1].size(); i++)
         {
             if (region->is_inner_of_a_region(points_all[1][i].first[0], points_all[1][i].first[1]))
             {
@@ -470,7 +477,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
 
         double sum1 = 0;
 
-        for (size_t i = 0; i < points[0].size(); ++i)
+        for (size_t i = 0; i < points[0].size(); i++)
         {
             int n = count_neighbor<int>(laplacian_edge_mask, points[0][i].first, -(r + 1));
             float lap_val = n * (255.0f - points[0][i].second[0]) * lap_edges_control_parameters[r] / 255.0f;
@@ -481,7 +488,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
 #ifdef QUADTREE_VORONOI_OUTPUT
             lap_val = (255.0f - points[0][i].second[0]) * lap_edges_control_parameters[r] / 255.0f;
             the_laplacian_image.at< cv::Vec3f >(points[0][i].first[0], points[0][i].first[1]) +=
-                    Vec3f(lap_val, lap_val, lap_val);
+                    cv::Vec3f(lap_val, lap_val, lap_val);
 #endif
         }
 
@@ -489,7 +496,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
         double sum2 = 0;
         std::vector<float> values(points[1].size());
 
-        for (size_t i = 0; i < points[1].size(); ++i)
+        for (size_t i = 0; i < points[1].size(); i++)
         {
             int n = count_neighbor<int>(laplacian_edge_mask, points[1][i].first, (r + 1));
             float lap_val = -n * (255.0f - points[1][i].second[0]) * lap_edges_control_parameters[r] / 255.0f;
@@ -500,7 +507,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
         if (sum2 != 0)
         {
             double rate = -sum1 / sum2;
-            for (size_t i = 0; i < points[1].size(); ++i)
+            for (size_t i = 0; i < points[1].size(); i++)
             {
                 values[i] *= rate;
                 laplacian_image.at<cv::Vec3f>(points[1][i].first[0], points[1][i].first[1]) +=
@@ -527,7 +534,8 @@ QPair<Region *, cv::Mat> PVG::discretization()
                                      {
                                          lap_region_mask[r] = regions[g]->lapRegion(lap_regions_scaled[r]);
                                      }
-                                 }, i);
+                                 },
+                                 i);
     }
 
     for (size_t i = 0; i < threads.size(); ++i)
@@ -539,11 +547,18 @@ QPair<Region *, cv::Mat> PVG::discretization()
     {
         if (lap_region_mask[r].second.x > 0 && lap_region_mask[r].second.y > 0)
         {
-            cv::Mat region_mask_tmp = cv::Mat::zeros(lap_region_mask[r].first.rows + 2, lap_region_mask[r].first.cols + 2, CV_8UC1);
-            lap_region_mask[r].first.copyTo(region_mask_tmp(cv::Rect(1, 1, lap_region_mask[r].first.cols, lap_region_mask[r].first.rows)));
+            cv::Mat region_mask_tmp = cv::Mat::zeros(lap_region_mask[r].first.rows + 2,
+                                                     lap_region_mask[r].first.cols + 2, CV_8UC1);
+
+            lap_region_mask[r].first.copyTo(
+                    region_mask_tmp(
+                            cv::Rect(1, 1, lap_region_mask[r].first.cols, lap_region_mask[r].first.rows)));
+
             cv::Mat distance_map_tmp = cv::Mat::zeros(region_mask_tmp.rows, region_mask_tmp.cols, CV_32FC1);
             cv::distanceTransform(region_mask_tmp, distance_map_tmp, CV_DIST_L1, 3);
-            distance_maps[r] = distance_map_tmp(cv::Rect(1, 1, lap_region_mask[r].first.cols, lap_region_mask[r].first.rows));
+
+            distance_maps[r] = distance_map_tmp(
+                    cv::Rect(1, 1, lap_region_mask[r].first.cols, lap_region_mask[r].first.rows));
 
             for (int i = 0; i < lap_region_mask[r].second.height; ++i)
             {
@@ -551,9 +566,15 @@ QPair<Region *, cv::Mat> PVG::discretization()
                 {
                     if (lap_region_mask[r].first.at<uchar>(i, j) != 0)
                     {
-                        if (region->is_inner_of_a_region(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j))
-                            ++areas[r];
-                        else lap_region_mask[r].first.at<uchar>(i, j) = 0;
+                        if (region->is_inner_of_a_region(lap_region_mask[r].second.y + i,
+                                                         lap_region_mask[r].second.x + j))
+                        {
+                            areas[r]++;
+                        }
+                        else
+                        {
+                            lap_region_mask[r].first.at<uchar>(i, j) = 0;
+                        }
                     }
                 }
             }
@@ -566,10 +587,16 @@ QPair<Region *, cv::Mat> PVG::discretization()
         {
             float max_val = -1.0f;
 
-            for (int i = 0; i < distance_maps[r].rows; ++i)
-                for (int j = 0; j < distance_maps[r].cols; ++j)
+            for (int i = 0; i < distance_maps[r].rows; i++)
+            {
+                for (int j = 0; j < distance_maps[r].cols; j++)
+                {
                     if (max_val < distance_maps[r].at<float>(i, j))
+                    {
                         max_val = distance_maps[r].at<float>(i, j);
+                    }
+                }
+            }
 
             std::vector<CPoint2i> pt_in;
             std::vector<CPoint2i> pt_out;
@@ -584,11 +611,16 @@ QPair<Region *, cv::Mat> PVG::discretization()
 
 #ifndef QUADTREE_VORONOI_OUTPUT
                         if (d < 0.05 || (distance_maps[r].at<float>(i, j) <= 1.0f && pt_out.size() < areas[r] - 1))
+                        {
                             pt_out.push_back(CPoint2i(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j));
+                        }
                         else
+                        {
                             pt_in.push_back(CPoint2i(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j));
+                        }
 #else
-                        pt_in.push_back(CPoint2i(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j));
+                        pt_in.push_back(
+                                CPoint2i(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j));
 #endif
                     }
                 }
@@ -606,7 +638,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
                 laplacian_image.at<cv::Vec3f>(pt_in[i][0], pt_in[i][1]) += lap_in;
 
 #ifdef QUADTREE_VORONOI_OUTPUT
-                the_laplacian_image.at<Vec3f>(pt_in[i][0], pt_in[i][1]) += lap_in;
+                the_laplacian_image.at<cv::Vec3f>(pt_in[i][0], pt_in[i][1]) += lap_in;
 #endif
             }
 
@@ -626,7 +658,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
                         laplacian_image.at<cv::Vec3f>(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j) += offset;
 
 #ifdef QUADTREE_VORONOI_OUTPUT
-                        the_laplacian_image.at<Vec3f>(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j) += offset;
+                        the_laplacian_image.at<cv::Vec3f>(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j) += offset;
 #endif
                     }
                 }
@@ -635,18 +667,23 @@ QPair<Region *, cv::Mat> PVG::discretization()
     }
 
 #ifdef QUADTREE_VORONOI_OUTPUT
-    vector<vector<CPoint2i>> points = flood_fill<Vec3f>(the_laplacian_image, Vec3f(0, 0, 0), 8, 1, *region);
-    Mat tmp(the_laplacian_image.size(), CV_8UC3);
-    tmp.setTo(Vec3b(255, 255, 255));
+    std::vector<std::vector<CPoint2i> > points =
+            flood_fill<cv::Vec3f>(the_laplacian_image, cv::Vec3f(0, 0, 0), 8, 1, *region);
+    cv::Mat tmp(the_laplacian_image.size(), CV_8UC3);
+    tmp.setTo(cv::Vec3b(255, 255, 255));
+
     for (size_t i = 0; i < points.size(); ++i)
     {
-        Vec3b c(rand() % 256, rand() % 256, rand() % 256);
+        cv::Vec3b c(rand() % 256, rand() % 256, rand() % 256);
+
         for (size_t j = 0; j < points[i].size(); ++j)
         {
-            tmp.at<Vec3b>(points[i][j][0], points[i][j][1]) = c;
+            tmp.at<cv::Vec3b>(points[i][j][0], points[i][j][1]) = c;
         }
     }
-    imwrite("./resultImg/laplacian_cell.png", tmp);
+
+    imwrite("./resultImg/laplacian_cell.bmp", tmp);
+    tmp.release();
 #endif
 
     return QPair<Region *, cv::Mat>(region.get(), laplacian_image);
@@ -765,15 +802,16 @@ void PVG::evaluation(Region * region, const cv::Mat laplacian_image, int n_rings
 
 //    convert_to_laplacian_mask = cv::Mat();
 //
-//    //Poisson solver
+    //Poisson solver
 //    PoissonSolver poissonSolver(
+//            true,
 //            size,
 //            laplacian_image,
 //            *region,
 //            scaleFactor,
 //            CPoint2d(w00.y() / scaleFactor, w00.x() / scaleFactor),
 //            end_points,
-//            solver_mode != NORMAL,
+//            false, //solver_mode != NORMAL,
 //            n_rings,
 //            convert_to_laplacian_mask);
 //
@@ -831,3 +869,51 @@ void PVG::evaluation(Region * region, const cv::Mat laplacian_image, int n_rings
     //set_image_to_draw(result);
 }
 
+#ifdef QUADTREE_VORONOI_OUTPUT
+template <class T>
+static std::vector<std::vector<CPoint2i> >
+flood_fill(const cv::Mat & image, const T & zero, int n_neighbors, int region_id, const Region & region)
+{
+    cv::Mat mask = cv::Mat::zeros(image.rows, image.cols, CV_8UC1);
+    std::vector<std::vector<CPoint2i> > region_points;
+
+    for (int i = 0; i < image.rows; ++i)
+    {
+        for (int j = 0; j < image.cols; ++j)
+        {
+            if (mask.at<uchar>(i, j) == 0 && region.region_id(i, j) == region_id)
+            {
+                std::queue<CPoint2i> pt_list;
+                region_points.emplace_back(std::vector<CPoint2i>(1, CPoint2i(i, j)));
+                mask.at<uchar>(i, j) = 255;
+                pt_list.push(CPoint2i(i, j));
+
+                while (!pt_list.empty())
+                {
+                    CPoint2i p = pt_list.front();
+                    pt_list.pop();
+
+                    for (int k = 0; k < n_neighbors; ++k)
+                    {
+                        CPoint2i pt = p + trans[k];
+
+                        if (pt[0] >= 0 && pt[0] < mask.rows && pt[1] >= 0 && pt[1] < mask.cols)
+                        {
+                            if (mask.at<uchar>(pt[0], pt[1]) == 0 &&
+                                image.at<T>(pt[0], pt[1]) == image.at<T>(p[0], p[1]) &&
+                                region.region_id(pt[0], pt[1]) == region_id)
+                            {
+                                region_points.back().push_back(pt);
+                                mask.at<uchar>(pt[0], pt[1]) = 255;
+                                pt_list.push(pt);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return region_points;
+}
+#endif

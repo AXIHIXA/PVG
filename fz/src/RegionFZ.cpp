@@ -57,7 +57,7 @@ void CRegionFZ::LabelBoundary(
     int i1, i2;
     int mode = segmentColorVec[num - 1].mode;  // mono = 0, dual = 1
 
-#if 1
+//#if 1
     if (mode == 1)
     {
         //if (1) {
@@ -158,7 +158,7 @@ void CRegionFZ::LabelBoundary(
         }
         else
         {
-#if 1
+//#if 1
             if (lastSide == 0)
             {
                 boundaryMask.at< int >(y, x) = CGeometry::getQuadrant(cd1);
@@ -167,14 +167,14 @@ void CRegionFZ::LabelBoundary(
             {
                 boundaryMask.at< int >(y, x) = CGeometry::getQuadrant(cd2);
             }
-#endif
+//#endif
         }
     }
     if (mode == 0 && !clr)
     {
         boundaryMask.at< int >(y, x) = 1;
     }
-#endif
+//#endif
 
     segmentMask.at< int >(y, x) = num;
 
@@ -247,7 +247,7 @@ void CRegionFZ::LabelBoundary(
             colorMask.at< Vec3f >(y, x) = c1;
             lastSide = 0;
             vecMask.at< unsigned char >(y, x) = 1;
-            tmp_vec3.first.push_back(Vec2i(y, x));
+            //tmp_vec3.first.push_back(Vec2i(y, x));
             sideMask.at< int >(y, x) = -(stroke_ID + 1);
             int ny = y + dy[i1], nx = x + dx[i1];
             if (in(ny, nx) && bdmakeup(ny, nx, num, li1, li2, i1, st, end))
@@ -260,7 +260,7 @@ void CRegionFZ::LabelBoundary(
                     segmentMask.at< int >(ny, nx) = num;
                     vecMask.at< unsigned char >(ny, nx) = 2;
                     sideMask.at< int >(ny, nx) = (stroke_ID + 1);
-                    tmp_vec3.second.push_back(Vec2i(ny, nx));
+                    //tmp_vec3.second.push_back(Vec2i(ny, nx));
                 }
             }
             if (i1 != i2)
@@ -276,7 +276,7 @@ void CRegionFZ::LabelBoundary(
                         segmentMask.at< int >(ny, nx) = num;
                         vecMask.at< unsigned char >(ny, nx) = 2;
                         sideMask.at< int >(ny, nx) = (stroke_ID + 1);
-                        tmp_vec3.second.push_back(Vec2i(ny, nx));
+                        //tmp_vec3.second.push_back(Vec2i(ny, nx));
                     }
                 }
             }
@@ -288,7 +288,7 @@ void CRegionFZ::LabelBoundary(
             vecMask.at< unsigned char >(y, x) = 2;
             sideMask.at< int >(y, x) = (stroke_ID + 1);
 
-            tmp_vec3.second.push_back(Vec2i(y, x));
+            //tmp_vec3.second.push_back(Vec2i(y, x));
             int ny = y + dy[i1], nx = x + dx[i1];
             if (in(ny, nx) && bdmakeup(ny, nx, num, li1, li2, i1, st, end))
             {
@@ -300,7 +300,7 @@ void CRegionFZ::LabelBoundary(
                     segmentMask.at< int >(ny, nx) = num;
                     vecMask.at< unsigned char >(ny, nx) = 1;
                     sideMask.at< int >(ny, nx) = -(stroke_ID + 1);
-                    tmp_vec3.first.push_back(Vec2i(ny, nx));
+                    //tmp_vec3.first.push_back(Vec2i(ny, nx));
                 }
             }
             if (i1 != i2)
@@ -316,7 +316,7 @@ void CRegionFZ::LabelBoundary(
                         segmentMask.at< int >(ny, nx) = num;
                         vecMask.at< unsigned char >(ny, nx) = 1;
                         sideMask.at< int >(ny, nx) = -(stroke_ID + 1);
-                        tmp_vec3.first.push_back(Vec2i(ny, nx));
+                        //tmp_vec3.first.push_back(Vec2i(ny, nx));
                     }
                 }
             }
@@ -352,20 +352,20 @@ void CRegionFZ::plotLine(
         nodeMask.at< bool >(y0, x0) = true;
         nm1.at< bool >(y0, x0) = true;
     }
-    if (ls == 0)
-    {
-        if (!tmp_vec3.first.empty())
-        {
-            tmp_vec3.first.pop_back();
-        }
-    }
-    else
-    {
-        if (!tmp_vec3.second.empty())
-        {
-            tmp_vec3.second.pop_back();
-        }
-    }
+//    if (ls == 0)
+//    {
+//        if (!tmp_vec3.first.empty())
+//        {
+//            tmp_vec3.first.pop_back();
+//        }
+//    }
+//    else
+//    {
+//        if (!tmp_vec3.second.empty())
+//        {
+//            tmp_vec3.second.pop_back();
+//        }
+//    }
     if (pixel_num > 0)
     { pixel_num--; }
     segmentColorVec.push_back(SegmentFZ(y0, x0, y1, x1, c11, c12, c21, c22, mode));
@@ -378,7 +378,7 @@ void CRegionFZ::plotLine(
     int err = dx + dy, e2, d;
     for (;;)
     {
-        d = lbx * (y0 - oy) - lby * (x0 - ox);  // Xi Han: always ZERO!
+        d = lbx * (y0 - oy) - lby * (x0 - ox);
         end = (y0 == y1) && (x0 == x1) && (k < 2);
         if (in(y0, x0))
         {
@@ -386,7 +386,7 @@ void CRegionFZ::plotLine(
             if (sideMask.at< int >(y0, x0) == 0 || !is_end_point(y0, x0, stroke_ID) ||
                 is_end_point(y0, x0, abs(sideMask.at< int >(y0, x0)) - 1))
             {
-                // d: 'err'. always ZERO
+                // d: 'err'.
                 // start: 0 for 1st seg in stroke, 1 for else
                 // end: 1 for (seg.size - 2)-th seg, 0 for else
                 // ls: last side. always pass in 0
@@ -464,8 +464,8 @@ void CRegionFZ::plotStrokes()
     {
         vec1.clear();
         vec2.clear();
-        tmp_vec3.first.clear();
-        tmp_vec3.second.clear();
+//        tmp_vec3.first.clear();
+//        tmp_vec3.second.clear();
         vecMask = Mat::zeros(height, width, CV_8UC1);  // vecMask cleaned!
         stroke_ID = i;
         pixel_num = 0;
@@ -618,6 +618,10 @@ void CRegionFZ::plotLastStroke(const SQ_Stroke & ls_stroke, int mode)  //mode ==
     }
 }
 
+///
+/// Xi Han: this func has nothing to do with lap edge/regions
+///         only called by boundary() for DCs
+///
 int CRegionFZ::findRegions()
 {
     queue< int > q;
@@ -662,8 +666,8 @@ int CRegionFZ::findRegions()
                     p = ny * width + nx;
                     if (sideMask.at< int >(ny, nx) == 0)
                     {
-                        if (colorMask.at< Vec3f >(ny, nx) != Vec3f(0, 0, 0))
-                        { // Xi Han: side & color is always updated together. this branch may not happen?
+                        if (colorMask.at< Vec3f >(ny, nx) != Vec3f(0, 0, 0)) // only for MONO boundary strokes
+                        {
                             regionMask.at< int >(ny, nx) = -cnt;
                         }
                         q.push(p);
@@ -810,10 +814,10 @@ void CRegionFZ::boundary(bool flag)
 #endif
 }
 
-vector <vector< pair < cv::Vec2i, cv::Vec3f >> > CRegionFZ::lapEdge(const SQ_Stroke & ls_stroke)
+vector<vector<pair<cv::Vec2i, cv::Vec3f > > > CRegionFZ::lapEdge(const SQ_Stroke & ls_stroke)
 {
     init();
-    vector < vector < pair < Vec2i, Vec3f > > > r;
+    vector<vector<pair<Vec2i, Vec3f> > > r;
     plotLastStroke(ls_stroke, 0);
     r.push_back(vec1);  // pixels w/ c1
     r.push_back(vec2);  // pixels w/ c2

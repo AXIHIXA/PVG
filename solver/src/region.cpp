@@ -375,7 +375,7 @@ CPoint2f Region::to_scaled_pt(const CPoint2f& p) const
 	return pt;
 }
 
-void Region::set_side_source(const std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f>>>& pts)
+void Region::set_side_source(const std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f>>> & pts)
 {
 	for (size_t i = 0; i < pts[0].size(); ++i)
 	{
@@ -385,6 +385,7 @@ void Region::set_side_source(const std::vector<std::vector<std::pair<cv::Vec2i, 
 			crossing_region[pts[0][i].first[0]][pts[0][i].first[1]].push_back(-side_mask_index);
 		}
 	}
+
 	for (size_t i = 0; i < pts[1].size(); ++i)
 	{
 		if (side_mask.at<int>(pts[1][i].first[0], pts[1][i].first[1]) == 0)
@@ -393,6 +394,7 @@ void Region::set_side_source(const std::vector<std::vector<std::pair<cv::Vec2i, 
 			crossing_region[pts[1][i].first[0]][pts[1][i].first[1]].push_back(side_mask_index);
 		}
 	}
+
 	++side_mask_index;
 }
 

@@ -17,17 +17,19 @@ struct SegmentFZ
     SegmentFZ(int y0, int x0, int y1, int x1, const cv::Vec3f & c11, const cv::Vec3f & c12, const cv::Vec3f & c21,
               const cv::Vec3f & c22, int mode) :
             x0(x0), y0(y0), x1(x1), y1(y1), c11(c11), c12(c12), c21(c21), c22(c22), mode(mode)
-    {};
+    {
+    };
 
     ~SegmentFZ()
-    {};
+    {
+    };
 };
 
 class CRegionFZ
 {
 public:
 
-    CRegionFZ(int h, int w, const QVector <SQ_Stroke> & strokes, double scaleFactor, const cv::Vec2i & w00);
+    CRegionFZ(int h, int w, const QVector<SQ_Stroke> & strokes, double scaleFactor, const cv::Vec2i & w00);
 
     CRegionFZ(const CRegionFZ &) = delete;
 
@@ -40,12 +42,12 @@ public:
     cv::Mat getColor();
 
     //m_boundary == 1
-    std::vector <std::vector< std::pair < cv::Vec2i, cv::Vec3f >> >
+    std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f >>>
 
     lapEdge(const SQ_Stroke & ls_stroke);
 
     //m_boundary == 2
-    std::pair <cv::Mat, cv::Rect> lapRegion(const SQ_Stroke & ls_stroke);
+    std::pair<cv::Mat, cv::Rect> lapRegion(const SQ_Stroke & ls_stroke);
 
     void setSize(int sz);
 
@@ -81,7 +83,7 @@ public:
     }
 
 private:
-    const QVector <SQ_Stroke> & m_strokes;
+    const QVector<SQ_Stroke> & m_strokes;
     cv::Mat nodeMask;
     cv::Mat nm1;
     cv::Mat vecMask;
@@ -104,7 +106,7 @@ private:
             int mode, bool & lastSide, bool clr, int k);
 
     void plotColor(cv::Vec3f & c11, cv::Vec3f & c12, cv::Vec3f & c21, cv::Vec3f & c22,
-                   const QVector <PointProperties> & pps, int k);
+                   const QVector<PointProperties> & pps, int k);
 
     inline bool in(int y, int x);
 
@@ -130,7 +132,7 @@ private:
     bool isDualLine;
 
     cv::Vec2i w00;
-    std::vector <SegmentFZ> segmentColorVec;
+    std::vector<SegmentFZ> segmentColorVec;
     cv::Mat boundaryMask;
     cv::Mat segmentMask;
 
@@ -139,9 +141,9 @@ private:
 
     cv::Mat sideMask;
 
-    std::vector <std::pair< cv::Vec2i, cv::Vec3f >> vec1, vec2;
+    std::vector<std::pair<cv::Vec2i, cv::Vec3f> > vec1, vec2;
 
-    std::pair <std::vector< cv::Vec2i >, std::vector< cv::Vec2i >> tmp_vec3;
+    //    std::pair <std::vector< cv::Vec2i >, std::vector< cv::Vec2i >> tmp_vec3;
     cv::Vec2i tl, br;
 
     int findRegions();
@@ -161,9 +163,9 @@ private:
 
     void out_lapEdge();
 
-    void outp(std::vector <cv::Vec2i> pt, std::string fn);
+    void outp(std::vector<cv::Vec2i> pt, std::string fn);
 
-    void outp(std::vector <std::vector< cv::Vec2i >> pt, std::string fn);
+    void outp(std::vector<std::vector<cv::Vec2i >> pt, std::string fn);
 
     void outp(std::vector<std::pair<std::vector<cv::Vec2i>, std::vector<cv::Vec2i> > > vec, std::string fn);
 };
@@ -185,22 +187,28 @@ inline bool CRegionFZ::bdmakeup(int y, int x)
 inline bool CRegionFZ::bdmakeup(int y, int x, int num, int li1, int li2, int i, bool st, bool end)
 {
     if (end)
-    { return false; }
+    {
+        return false;
+    }
     bool A = ((li1 == i) || (li2 == i));
-    bool B = (((colorMask.at< cv::Vec3f >(y, x) == cv::Vec3f(0, 0, 0)) && (vecMask.at< unsigned char >(y, x) == 0)) ||
-              (segmentMask.at< int >(y, x) != num &&
-               segmentMask.at< int >(y, x) != num - 1)); // B: not sampled in seg, or,
+    bool B = (((colorMask.at<cv::Vec3f>(y, x) == cv::Vec3f(0, 0, 0)) && (vecMask.at<unsigned char>(y, x) == 0)) ||
+              (segmentMask.at<int>(y, x) != num &&
+               segmentMask.at<int>(y, x) != num - 1)); // B: not sampled in seg, or,
     if (st)
-    { return A && B; }
+    {
+        return A && B;
+    }
     else
-    { return B; }
+    {
+        return B;
+    }
 }
 
 inline bool CRegionFZ::bdmakeup(int y, int x, int num)
 {
     return
-            (((colorMask.at< cv::Vec3f >(y, x) == cv::Vec3f(0, 0, 0)) && (vecMask.at< unsigned char >(y, x) == 0)) ||
-             (segmentMask.at< int >(y, x) != num && segmentMask.at< int >(y, x) != num - 1));
+            (((colorMask.at<cv::Vec3f>(y, x) == cv::Vec3f(0, 0, 0)) && (vecMask.at<unsigned char>(y, x) == 0)) ||
+             (segmentMask.at<int>(y, x) != num && segmentMask.at<int>(y, x) != num - 1));
 }
 
 #endif
