@@ -11,20 +11,6 @@ using namespace std;
 using namespace cv;
 
 
-//#define BOUNDARY_MASK
-
-#ifdef BOUNDARY_MASK
-bool is_boundary(const Mat m, int ln, int col)
-{
-    if (ln >= 0 && ln < m.rows && col >= 0 && col < m.cols)
-    {
-        return m.at<uchar>(ln, col) != 0;
-    }
-
-    return false;
-}
-#endif
-
 QuadTree::QuadTree(
         const Region & region,
         int region_id,
@@ -72,9 +58,6 @@ QuadTree::QuadTree(
     }
 
     Mat pseudo_laplacian = Mat::zeros(mask.rows, mask.cols, CV_32FC3);
-#ifdef BOUNDARY_MASK
-    Mat boundary_mask = Mat::zeros(mask.rows, mask.cols, CV_8UC1);
-#endif
 
     for (int ln = 0; ln < pseudo_laplacian.rows; ++ln)
     {
@@ -114,9 +97,6 @@ QuadTree::QuadTree(
             else if (type == BOUNDARY)
             {
                 pseudo_laplacian.at<Vec3f>(ln, col) = Vec3f(-1e10, -1e10, -1e10);
-#ifdef BOUNDARY_MASK
-                boundary_mask.at<uchar>(ln, col) = 255;
-#endif
             }
             else
             {
@@ -128,30 +108,11 @@ QuadTree::QuadTree(
                 {
                     pseudo_laplacian.at<Vec3f>(ln, col) = Vec3f(-1e10, -1e10, -1e10);
                 }
-#ifdef BOUNDARY_MASK
-                if (is_image_boundary(region, 1, mask_ori[0] + ln, mask_ori[1] + col))
-                    boundary_mask.at<uchar>(ln, col) = 255;
-#endif
             }
         }
     }
-#ifdef BOUNDARY_MASK
-    for (int ln = 0; ln < pseudo_laplacian.rows; ++ln)
-    {
-        for (int col = 0; col < pseudo_laplacian.cols; ++col)
-        {
-            if (region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col) == INNER)
-            {
-                if (is_boundary(boundary_mask, ln - 1, col) || is_boundary(boundary_mask, ln, col + 1) ||
-                    is_boundary(boundary_mask, ln + 1, col) || is_boundary(boundary_mask, ln, col - 1)
-                    )
-                    pseudo_laplacian.at<Vec3f>(ln, col) = Vec3f(-1e10, -1e10, -1e10);
-            }
-        }
-    }
-#endif
 
-    //node splitting
+    // node splitting
     int cell_width = step;
     for (int depth = 1; cell_width > 1; ++depth)
     {
@@ -180,11 +141,8 @@ QuadTree::QuadTree(
     while (quadtree.is_valid(ite))
     {
         ite->type = region.type(region_id, ite->row, ite->col);
-#ifdef DEBUG_TEST
-        if (is_image_boundary(region, 1, ite->row, ite->col) && step != 1)
-#else
+
         if (is_image_boundary(region, 1, ite->row, ite->col))
-#endif
         {
             CPoint2i p = region.get_adjacent_image_border(CPoint2i(ite->row, ite->col));
             if (region.region_id(p) == region_id)
@@ -641,35 +599,7 @@ void QuadTree::construct_laplacian()
 #endif
     /**************end debug***********************/
 
-    //construct Laplacian matrix
-#ifdef DEBUG_TEST
-    neighbor_nodes.resize(pixel_node_count);
-    triangles.resize(inner_node_count);
-    for (size_t i = 0; i < all_delaunay_triangles.size(); ++i)
-    {
-        TRIANGLE tri;
-        const GEOM_FADE2D::Point2* pt0 = all_delaunay_triangles[i]->getCorner(0);
-        const GEOM_FADE2D::Point2* pt1 = all_delaunay_triangles[i]->getCorner(1);
-        const GEOM_FADE2D::Point2* pt2 = all_delaunay_triangles[i]->getCorner(2);
-        tri.p[0] = cv::Point2f(pt0->x(), pt0->y());
-        tri.p[1] = cv::Point2f(pt1->x(), pt1->y());
-        tri.p[2] = cv::Point2f(pt2->x(), pt2->y());
-
-        if (pt0->getCustomIndex() < triangles.size())
-        {
-            triangles[pt0->getCustomIndex()].push_back(tri);
-        }
-        if (pt1->getCustomIndex() < triangles.size())
-        {
-            triangles[pt1->getCustomIndex()].push_back(tri);
-        }
-        if (pt2->getCustomIndex() < triangles.size())
-        {
-            triangles[pt2->getCustomIndex()].push_back(tri);
-        }
-    }
-#endif
-
+    // construct Laplacian matrix
     vector<Eigen::Triplet<double>> triplet_list_basis;
     triplet_list_basis.reserve(8 * adjacent_list.size());
 
@@ -704,10 +634,6 @@ void QuadTree::construct_laplacian()
                     triplet_list_solver.push_back(Eigen::Triplet<double>(r, (int) i, -d1));
                 }
             }
-            //for n-ring neighbor searching
-#ifdef DEBUG_TEST
-            neighbor_nodes[i].push_back(r);
-#endif
         }
         triplet_list_basis.push_back(Eigen::Triplet<double>((int) i, (int) i, -total_basis));
         if (i < (size_t) inner_node_count)

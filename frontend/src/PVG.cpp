@@ -1,11 +1,5 @@
-//
-// Created by ax on 11/30/19.
-//
-
-
 #include "auxiliary.h"
 #include "debug.h"
-#include "global.h"
 #include "pathstroke_auxiliary.h"
 #include "poisson_solver.h"
 #include "PVG.h"
@@ -701,7 +695,6 @@ void PVG::evaluation(Region * region, const cv::Mat laplacian_image, int n_rings
     /// process enlarged image
     ///
 
-    clock_t t = clock();
     std::vector<CPoint2d> end_points;
 
     if (scaleFactor != 1.0)
@@ -804,8 +797,6 @@ void PVG::evaluation(Region * region, const cv::Mat laplacian_image, int n_rings
         region->add_SQ_strokes(strokes);
     }
 
-    //cout << "Preprocessing " << float(clock() - t_total)/CLOCKS_PER_SEC << "s\n";
-
     cv::Mat convert_to_laplacian_mask = cv::Mat();
 
     // Poisson solver
@@ -819,13 +810,7 @@ void PVG::evaluation(Region * region, const cv::Mat laplacian_image, int n_rings
         n_rings,
         convert_to_laplacian_mask);
 
-//
-//    // Output result image
     result = poissonSolver.get_result_image();
-
-    //cv::imwrite("resultImg/RESULT233.bmp", result);
-
-    //set_image_to_draw(result);
 }
 
 #ifdef QUADTREE_VORONOI_OUTPUT

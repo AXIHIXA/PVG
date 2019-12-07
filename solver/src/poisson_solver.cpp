@@ -4,7 +4,6 @@
 #include "adaptive_evaluation.h"
 #include "adaptive_solver.h"
 #include "debug.h"
-#include "logger.h"
 #include "point_vector.h"
 #include "poisson_solver.h"
 #include "quadtree.h"
@@ -41,6 +40,7 @@ PoissonSolver::PoissonSolver(
         critical_points(region.get_number_of_regions()),
         convert_to_laplacian_mask(convert_to_laplacian_mask)
 {
+    // TODO: support scaling
     assert(scale == 1.0);
 
     clock_t t_total = clock();
@@ -72,11 +72,13 @@ PoissonSolver::PoissonSolver(
         bounding_boxes[i].intersection_boundingbox(window_box);
     }
 
-#if defined(QUADTREE_VORONOI_OUTPUT)
+#ifdef QUADTREE_VORONOI_OUTPUT
     for (int r = 0; r < region.get_number_of_regions(); ++r)
     {
         if (bounding_boxes[r].valid())
-            region_computation(r, recompute, bounding_boxes[r], simple_solver, n_rings);
+        {
+            regionComputation(r, bounding_boxes[r], n_rings);
+        }
     }
 #else
     tbb::parallel_for(0, region.get_number_of_regions(), 1, [&](int r)
@@ -112,8 +114,6 @@ void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box
 
     AdaptiveSolver solver(region, index, *trees[index], laplacian_image);
     solver.solve(coefs[index]);
-
-    //trees[index]->get_number_of_inner_points() << " " << trees[index]->get_number_of_inner_pixels() << "\n";
 
     times[1] += clock() - t;
     t = clock();

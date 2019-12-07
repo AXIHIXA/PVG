@@ -1,7 +1,5 @@
 #include "pathstroke_auxiliary.h"
 #include "Strokes.h"
-//#include "pathstroke.h"
-#include <Eigen/Sparse>
 #include <iostream>
 #include <opencv2/highgui.hpp>
 #include <queue>

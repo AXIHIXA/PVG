@@ -9,15 +9,6 @@
 #include <opencv2/core.hpp>
 #include <vector>
 
-//#define DEBUG_TEST
-//#define QUADTREE_VORONOI_OUTPUT
-
-#ifdef DEBUG_TEST
-struct TRIANGLE
-{
-    cv::Point2f p[3];
-};
-#endif
 
 class Region;
 
@@ -70,18 +61,6 @@ public:
 
     int get_number_of_inner_pixels() const;
 
-#ifdef DEBUG_TEST
-    std::vector<int> get_neighbors(int i) const
-    {
-        return neighbor_nodes[i];
-    }
-
-    std::vector<std::vector<TRIANGLE>> get_triangles() const
-    {
-        return triangles;
-    }
-#endif
-
 private:
     void construct_laplacian();
 
@@ -109,12 +88,6 @@ private:
 
     // for search acceleration
     std::vector<tree<TreeNodeD>::sibling_iterator> iterators;
-
-#ifdef DEBUG_TEST
-    // for n-ring neighbor search
-    std::vector<std::vector<int>> neighbor_nodes;
-    std::vector<std::vector<TRIANGLE>> triangles;
-#endif
 };
 
 #endif

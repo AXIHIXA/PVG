@@ -1,7 +1,3 @@
-//
-// Created by ax on 11/30/19.
-//
-
 #ifndef PVG_PVG_H
 #define PVG_PVG_H
 

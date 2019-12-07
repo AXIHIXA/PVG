@@ -88,7 +88,6 @@ set(SOLVER
         solver/include/adaptive_evaluation.h
         solver/include/adaptive_solver.h
         solver/include/auxiliary.h
-        solver/include/logger.h
         solver/include/point_vector.h
         solver/include/poisson_solver.h
         solver/include/quadtree.h
@@ -98,7 +97,6 @@ set(SOLVER
         solver/src/adaptive_evaluation.cpp
         solver/src/adaptive_solver.cpp
         solver/src/auxiliary.cpp
-        solver/src/logger.cpp
         solver/src/poisson_solver.cpp
         solver/src/quadtree.cpp
         solver/src/region.cpp
@@ -116,7 +114,6 @@ set(SOURCE_FILES
         ${SOLVER}
         ${TINYXML}
         main/include/debug.h
-        main/include/global.h
         main/src/main.cpp
         )
 
@@ -153,9 +150,8 @@ set(ALL_LIBS
         )
 
 add_definitions(-DST_COLOR -DST_VERBOSE)
-#add_definitions(-DSAVE_DECOMPRESSED_PVG_XML)
 add_definitions(-DoutFZ)
-#add_definitions(-DQUADTREE_VORONOI_OUTPUT)
+add_definitions(-DQUADTREE_VORONOI_OUTPUT)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ALL_INCLUDE_DIRS})
