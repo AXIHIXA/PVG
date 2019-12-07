@@ -44,10 +44,10 @@ public:
     //m_boundary == 1
     std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f >>>
 
-    lapEdge(const SQ_Stroke & ls_stroke);
+    lapEdge(unsigned int strokeID, const SQ_Stroke & ls_stroke);
 
     //m_boundary == 2
-    std::pair<cv::Mat, cv::Rect> lapRegion(const SQ_Stroke & ls_stroke);
+    std::pair<cv::Mat, cv::Rect> lapRegion(unsigned int strokeID, const SQ_Stroke & ls_stroke);
 
     void setSize(int sz);
 

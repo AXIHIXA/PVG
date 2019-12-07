@@ -5,10 +5,12 @@
 
 enum PointType
 {
-    INNER, BOUNDARY, OUTER
+    INNER,
+    BOUNDARY,
+    OUTER
 };
 
-template < typename T >
+template <typename T>
 struct TreeNode
 {
     TreeNode() : row(0), col(0), width(0)
@@ -32,9 +34,9 @@ struct TreeNode
     T width;
 };
 
-typedef TreeNode< int > TreeNodeD;
+typedef TreeNode<int> TreeNodeD;
 
-template < typename T >
+template <typename T>
 struct BoundingBox
 {
     T row;
@@ -56,7 +58,7 @@ struct BoundingBox
         return height * width;
     }
 
-    bool intersection_boundingbox(const BoundingBox< T > & box)
+    bool intersection_boundingbox(const BoundingBox<T> & box)
     {
         T row_max = std::max(row, box.row);
         T col_max = std::max(col, box.col);

@@ -7,7 +7,7 @@
 #include "debug.h"
 #include "global.h"
 #include "pathstroke_auxiliary.h"
-//#include "poisson_solver.h"
+#include "poisson_solver.h"
 #include "PVG.h"
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
@@ -22,7 +22,7 @@ PVG::PVG(const QString & filename, double sf, const QPoint & w)
 {
     // cpu capacity
     max_threads = std::min(std::thread::hardware_concurrency(), 16U);
-    st_debug("max_threads = %u", max_threads);
+    st_info("max_threads = %u", max_threads);
     regions.resize(max_threads);
 
     // resize magnifier
@@ -433,7 +433,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
                 {
                      for (unsigned int r = g; r < lap_edges_scaled.size(); r += max_threads)
                      {
-                         lap_edge_points[r] = regions[g]->lapEdge(lap_edges_scaled[r]);
+                         lap_edge_points[r] = regions[g]->lapEdge(r, lap_edges_scaled[r]);
                      }
                 },
                 i);
@@ -522,7 +522,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
     /// Laplacian region generation
     ///
 
-    std::vector<std::pair<cv::Mat, cv::Rect> > lap_region_mask(lap_regions_scaled.size());
+    std::vector<std::pair<cv::Mat, cv::Rect>> lap_region_mask(lap_regions_scaled.size());
     std::vector<cv::Mat> distance_maps(lap_regions_scaled.size());
     std::vector<int> areas(lap_regions_scaled.size(), 0);
 
@@ -532,7 +532,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
                                  {
                                      for (int r = g; r < lap_regions_scaled.size(); r += max_threads)
                                      {
-                                         lap_region_mask[r] = regions[g]->lapRegion(lap_regions_scaled[r]);
+                                         lap_region_mask[r] = regions[g]->lapRegion(r, lap_regions_scaled[r]);
                                      }
                                  },
                                  i);
@@ -548,7 +548,8 @@ QPair<Region *, cv::Mat> PVG::discretization()
         if (lap_region_mask[r].second.x > 0 && lap_region_mask[r].second.y > 0)
         {
             cv::Mat region_mask_tmp = cv::Mat::zeros(lap_region_mask[r].first.rows + 2,
-                                                     lap_region_mask[r].first.cols + 2, CV_8UC1);
+                                                     lap_region_mask[r].first.cols + 2,
+                                                     CV_8UC1);
 
             lap_region_mask[r].first.copyTo(
                     region_mask_tmp(
@@ -744,7 +745,7 @@ void PVG::evaluation(Region * region, const cv::Mat laplacian_image, int n_rings
                     {
                          for (int r = g; r < lap_edges_scaled.size(); r += max_threads)
                          {
-                             points_vector[r] = regions[g]->lapEdge(lap_edges_scaled[r]);
+                             points_vector[r] = regions[g]->lapEdge(r, lap_edges_scaled[r]);
                          }
                     },
                     i);
@@ -800,71 +801,24 @@ void PVG::evaluation(Region * region, const cv::Mat laplacian_image, int n_rings
 
     //cout << "Preprocessing " << float(clock() - t_total)/CLOCKS_PER_SEC << "s\n";
 
-//    convert_to_laplacian_mask = cv::Mat();
-//
-    //Poisson solver
-//    PoissonSolver poissonSolver(
-//            true,
-//            size,
-//            laplacian_image,
-//            *region,
-//            scaleFactor,
-//            CPoint2d(w00.y() / scaleFactor, w00.x() / scaleFactor),
-//            end_points,
-//            false, //solver_mode != NORMAL,
-//            n_rings,
-//            convert_to_laplacian_mask);
+    cv::Mat convert_to_laplacian_mask = cv::Mat();
+
+    // Poisson solver
+    PoissonSolver poissonSolver(
+        cv::Size(size.width(), size.height()),
+        laplacian_image,
+        *region,
+        scaleFactor,
+        CPoint2d(w00.y() / scaleFactor, w00.x() / scaleFactor),
+        end_points,
+        n_rings,
+        convert_to_laplacian_mask);
+
 //
 //    // Output result image
-//    result = poissonSolver.get_result_image();
+    result = poissonSolver.get_result_image();
 
-#ifdef DEBUG_TEST
-    poisson_solver.get_accurate_coef().copyTo(coef_copy);
-#endif
-
-#ifdef BLUR
-    if (solver_mode==NORMAL) {
-		void diffuse_blur_kernel(cv::Mat& blur_image);
-		void blur(cv::Mat& image, const cv::Mat& blur_kernel);
-
-		vector<SQ_Stroke> strokes(m_strokes_scaled.begin(), m_strokes_scaled.end());
-		for (size_t i = 0; i < strokes.size(); ++i)
-			strokes[i].translation(QPointF(-w00.x(), -w00.y()));
-		blur_image.create(height(), width(), CV_32FC1);
-		blur_image.setTo(-1.0f);
-		CRegionFZ scaled_reg(height(), width(), m_strokes_scaled, m_scaleFactor, cv::Vec2i(w00.y(), w00.x()));
-		for (int i = 0; i < strokes.size(); ++i)
-		{
-			vector<vector<pair<cv::Vec2i, cv::Vec3f>>> pts = scaled_reg.lapEdge(strokes[i]);
-			for (size_t j = 0; j < pts[0].size(); ++j)
-			{
-				blur_image.at<float>(pts[0][j].first[0], pts[0][j].first[1]) = m_scaleFactor*strokes[i].blur_kernel_radius;
-			}
-			for (size_t j = 0; j < pts[1].size(); ++j)
-			{
-				blur_image.at<float>(pts[1][j].first[0], pts[1][j].first[1]) = m_scaleFactor*strokes[i].blur_kernel_radius;
-			}
-		}
-		///////////////////////////
-		/*Mat tmp = Mat::zeros(blur_image.size(), CV_8UC1);
-		for (int i = 0; i < tmp.rows; ++i)
-		{
-			for (int j = 0; j < tmp.cols; ++j)
-			{
-				if (blur_image.at<float>(i, j) >= 0) tmp.at<uchar>(i, j) = 255;
-			}
-		}
-		imwrite("./resultImg/edge.png", tmp);*/
-		//////////////////////////////
-		clock_t t = clock();
-		diffuse_blur_kernel(blur_image);
-		blur_image /= 2.828f;
-		cout << "diffuion " << (float)(clock() - t) / CLOCKS_PER_SEC << endl;
-		t = clock();
-		blur(result, blur_image);
-		cout << "bluring " << (float)(clock() - t) / CLOCKS_PER_SEC << endl;
-	}
-#endif
+    cv::imwrite("resultImg/RESULT233.bmp", result);
 
     //set_image_to_draw(result);
 }

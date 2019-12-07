@@ -49,6 +49,7 @@ Region::Region(const cv::Mat& mask, const cv::Mat& sideMask) :mask(mask)
 	sideMask.copyTo(side_mask);
 
 	number_of_regions = -1;
+
 	for (int i = 0; i < mask.rows; ++i)
 	{
 		for (int j = 0; j < mask.cols; ++j)
@@ -60,6 +61,7 @@ Region::Region(const cv::Mat& mask, const cv::Mat& sideMask) :mask(mask)
 
 	vector<CPoint2i> min(number_of_regions, CPoint2i(std::max(mask.rows, mask.cols), std::max(mask.rows, mask.cols)));
 	vector<CPoint2i> max(number_of_regions, CPoint2i(0, 0));
+
 	for (int i = 0; i < mask.rows; ++i)
 	{
 		for (int j = 0; j < mask.cols; ++j)
@@ -77,6 +79,7 @@ Region::Region(const cv::Mat& mask, const cv::Mat& sideMask) :mask(mask)
 	}
 
 	rects.resize(number_of_regions);
+
 	for (size_t i = 0; i < rects.size(); ++i)
 	{
 		rects[i].row = min[i][0];
@@ -97,12 +100,14 @@ Region::Region(const cv::Mat& mask, const cv::Mat& sideMask) :mask(mask)
 			if (id > side_mask_index) side_mask_index = id;
 		}
 	}
+
 	++side_mask_index;
 
 	enlarged_side_mask_index = side_mask_index;
 	enlarged_side_mask_index_backup = enlarged_side_mask_index;
 
 	mono_mask = Mat::zeros(mask.size(), CV_8UC1);
+
 	for (int i = 0; i < mask.rows; ++i)
 	{
 		for (int j = 0; j < mask.cols; ++j)
@@ -115,13 +120,17 @@ Region::Region(const cv::Mat& mask, const cv::Mat& sideMask) :mask(mask)
 	}
 
 	crossing_region.resize(boost::extents[mask.rows][mask.cols]);
-	tbb::parallel_for(0, side_mask.rows, [&](int i)
-	{
-		for (int j = 0; j < side_mask.cols; ++j)
-		{
-			if (side_mask.at<int>(i, j) != 0) crossing_region[i][j].push_back(side_mask.at<int>(i, j));
-		}
-	});
+
+    tbb::parallel_for(0, side_mask.rows, [&](int i)
+    {
+        for (int j = 0; j < side_mask.cols; ++j)
+        {
+            if (side_mask.at<int>(i, j) != 0)
+            {
+                crossing_region[i][j].push_back(side_mask.at<int>(i, j));
+            }
+        }
+    });
 }
 
 void Region::labels_generation()
@@ -377,7 +386,13 @@ CPoint2f Region::to_scaled_pt(const CPoint2f& p) const
 
 void Region::set_side_source(const std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f>>> & pts)
 {
-	for (size_t i = 0; i < pts[0].size(); ++i)
+	// Xi Han: mark points on lap edge that:
+	// 1. in DC region (regionMask > 0)
+	// 2. not on DC curve (sideMask == 0)
+	// case I: vecMask = 1 (sample pt DC): -side_mask_index
+	// case II: vecMask = 2 (neibor pt DC): side_mask_index
+
+    for (size_t i = 0; i < pts[0].size(); i++)
 	{
 		if (side_mask.at<int>(pts[0][i].first[0], pts[0][i].first[1]) == 0)
 		{
@@ -386,7 +401,7 @@ void Region::set_side_source(const std::vector<std::vector<std::pair<cv::Vec2i, 
 		}
 	}
 
-	for (size_t i = 0; i < pts[1].size(); ++i)
+	for (size_t i = 0; i < pts[1].size(); i++)
 	{
 		if (side_mask.at<int>(pts[1][i].first[0], pts[1][i].first[1]) == 0)
 		{

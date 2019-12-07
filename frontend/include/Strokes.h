@@ -1,8 +1,10 @@
 #ifndef STROKES_H
 #define STROKES_H
 
-#include <QtWidgets>
+
 #include <opencv2/core.hpp>
+#include <QtWidgets>
+
 
 struct PointProperties
 {
@@ -19,9 +21,15 @@ public:
 
     ~SQ_Stroke() = default;
 
-    enum StrokeMode { CLOSED, OPEN };
+    enum StrokeMode
+    {
+        CLOSED, OPEN
+    };
 
-    enum MDMode { MONO, DUAL };
+    enum MDMode
+    {
+        MONO, DUAL
+    };
 
     int sideEndpoint(const QPointF & p, double scale) const;
 
@@ -58,16 +66,16 @@ public:
     SQ_Stroke & operator=(const SQ_Stroke & s);
 
 public:
-    QVector< QPair< QPointF, cv::Vec3d>> tangents;
+    QVector<QPair<QPointF, cv::Vec3d>> tangents;
 
     QPointF dir_f;
     QPointF dir_b;
-    QVector< QPointF > s_points;
-    QVector< PointProperties > s_properties;
+    QVector<QPointF> s_points;
+    QVector<PointProperties> s_properties;
 
-    QVector< QPointF > segs;
-    QVector< PointProperties > pps;
-    QVector< int > idx;
+    QVector<QPointF> segs;
+    QVector<PointProperties> pps;
+    QVector<int> idx;
 
     StrokeMode s_mode;  // closed=0 open=1
     MDMode s_mdmode;    // define mono/dual line !!!DIFFERENT from s_mode!!! mono=0 dual=1

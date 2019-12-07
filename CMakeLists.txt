@@ -69,39 +69,37 @@ set(FADE2D
         fade2d/include/Zone2.h
         )
 
-set(FZ
-        fz/include/Geometry.hpp
-        fz/include/ParseColor.hpp
-        fz/include/pathstroke_auxiliary.h
-        fz/include/psimpl.h
-        fz/include/PVG.h
-        fz/include/RegionFZ.h
-        fz/include/SamplSimpl.hpp
-        fz/include/Strokes.h
-        fz/src/pathstroke_auxiliary.cpp
-        fz/src/RegionFZ.cpp
-        fz/src/Strokes.cpp
-        fz/src/PVG.cpp
+set(FRONTEND
+        frontend/include/Geometry.hpp
+        frontend/include/ParseColor.hpp
+        frontend/include/pathstroke_auxiliary.h
+        frontend/include/psimpl.h
+        frontend/include/PVG.h
+        frontend/include/RegionFZ.h
+        frontend/include/SamplSimpl.hpp
+        frontend/include/Strokes.h
+        frontend/src/pathstroke_auxiliary.cpp
+        frontend/src/RegionFZ.cpp
+        frontend/src/Strokes.cpp
+        frontend/src/PVG.cpp
         )
 
 set(SOLVER
-#        solver/include/adaptive_evaluation.h
-#        solver/include/adaptive_solver.h
-#        solver/include/auxiliary.h
-#        solver/include/cuda_adaptive_evaluation.h
+        solver/include/adaptive_evaluation.h
+        solver/include/adaptive_solver.h
+        solver/include/auxiliary.h
         solver/include/logger.h
         solver/include/point_vector.h
-#        solver/include/poisson_solver.h
+        solver/include/poisson_solver.h
         solver/include/quadtree.h
         solver/include/region.h
         solver/include/structure.h
         solver/include/tree.hh
-#        solver/src/adaptive_evaluation.cpp
-#        solver/src/adaptive_solver.cpp
+        solver/src/adaptive_evaluation.cpp
+        solver/src/adaptive_solver.cpp
         solver/src/auxiliary.cpp
-        solver/src/cuda_adaptive_evaluation.cu
         solver/src/logger.cpp
-#        solver/src/poisson_solver.cpp
+        solver/src/poisson_solver.cpp
         solver/src/quadtree.cpp
         solver/src/region.cpp
         )
@@ -114,7 +112,7 @@ set(TINYXML
 set(SOURCE_FILES
         ${ALGLIB}
         ${FADE2D}
-        ${FZ}
+        ${FRONTEND}
         ${SOLVER}
         ${TINYXML}
         main/include/debug.h
@@ -125,7 +123,7 @@ set(SOURCE_FILES
 set(ALL_INCLUDE_DIRS
         alglib/include
         fade2d/include
-        fz/include
+        frontend/include
         main/include
         solver/include
         tinyxml/include
@@ -157,7 +155,7 @@ set(ALL_LIBS
 add_definitions(-DST_COLOR -DST_VERBOSE)
 #add_definitions(-DSAVE_DECOMPRESSED_PVG_XML)
 add_definitions(-DoutFZ)
-add_definitions(-DQUADTREE_VORONOI_OUTPUT)
+#add_definitions(-DQUADTREE_VORONOI_OUTPUT)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ALL_INCLUDE_DIRS})
