@@ -30,6 +30,13 @@ public:
     ~PVG() = default;
 
     ///
+    /// save
+    /// \brief save rendered PVG file to disk
+    /// \param filename
+    ///
+    void save(const QString & filename);
+
+    ///
     /// decompress
     /// \brief decompress .pvg file into xml and save to disk
     /// \param filename

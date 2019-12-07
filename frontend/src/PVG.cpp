@@ -32,8 +32,13 @@ PVG::PVG(const QString & filename, double sf, const QPoint & w)
     // open & solve
     open(filename, scaleFactor);
     QPair<Region *, cv::Mat> res = discretization();
-    cv::imwrite("resultImg/lapimg.bmp", res.second);
+    //cv::imwrite("resultImg/lapimg.bmp", res.second);
     evaluation(res.first, res.second, 4);
+}
+
+void PVG::save(const QString & filename)
+{
+    cv::imwrite(filename.toStdString(), result);
 }
 
 void PVG::decompress(const QString & filename)
@@ -818,7 +823,7 @@ void PVG::evaluation(Region * region, const cv::Mat laplacian_image, int n_rings
 //    // Output result image
     result = poissonSolver.get_result_image();
 
-    cv::imwrite("resultImg/RESULT233.bmp", result);
+    //cv::imwrite("resultImg/RESULT233.bmp", result);
 
     //set_image_to_draw(result);
 }
