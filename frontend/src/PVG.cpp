@@ -612,11 +612,11 @@ QPair<Region *, cv::Mat> PVG::discretization()
 #ifndef QUADTREE_VORONOI_OUTPUT
                         if (d < 0.05 || (distance_maps[r].at<float>(i, j) <= 1.0f && pt_out.size() < areas[r] - 1))
                         {
-                            pt_out.push_back(CPoint2i(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j));
+                            pt_out.emplace_back(CPoint2i(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j));
                         }
                         else
                         {
-                            pt_in.push_back(CPoint2i(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j));
+                            pt_in.emplace_back(CPoint2i(lap_region_mask[r].second.y + i, lap_region_mask[r].second.x + j));
                         }
 #else
                         pt_in.push_back(
@@ -693,16 +693,13 @@ void PVG::evaluation(Region * region, const cv::Mat & laplacian_image, int n_rin
 {
     assert(scaleFactor == 1.0);
 
-    cv::Mat edgeNeighborMask = cv::Mat();
-
     PoissonSolver poissonSolver(
         cv::Size(size.width(), size.height()),
         laplacian_image,
         *region,
         scaleFactor,
         CPoint2d(w00.y() / scaleFactor, w00.x() / scaleFactor),
-        n_rings,
-        edgeNeighborMask);
+        n_rings);
 
     result = poissonSolver.getResultImage();
 }

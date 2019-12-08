@@ -16,40 +16,45 @@ AdaptiveSolver::AdaptiveSolver(
         region(region),
         region_id(region_id),
         tree(tree),
-        laplacian_image(laplacian_image),
         laplacian_matrix(tree.get_laplacian_solver()),
-        solved(false)
+        laplacian_image(laplacian_image)
 {
+
 }
 
 void AdaptiveSolver::solve(std::vector<cv::Vec3f> & color)
 {
-    if (!solved)
+    // L^I y = b - L^B y^B
+
+    ///
+    /// Cholesky decomposition
+    ///
+
+    solver.compute(laplacian_matrix.topLeftCorner(
+            tree.get_number_of_inner_points(),
+            tree.get_number_of_inner_points()));
+
+    if (solver.info() != Eigen::Success)
     {
-        solver.compute(laplacian_matrix.topLeftCorner(
-                tree.get_number_of_inner_points(),
-                tree.get_number_of_inner_points()));
-
-        if (solver.info() != Eigen::Success)
-        {
-            st_error("decomposition failed %d", solver.info());
-            abort();
-        }
-
-        solved = true;
+        st_error("decomposition failed %d", solver.info());
+        abort();
     }
+
+    ///
+    /// b - L^B y^B
+    ///
 
     std::vector<TreeNodeD> regions;
     tree.get_regions(regions);
 
     std::vector<Eigen::VectorXd> X_lap(3, Eigen::VectorXd(tree.get_number_of_inner_points()));
 
-    for (int i = 0; (int) i < regions.size(); ++i)
+    for (size_t i = 0; i < regions.size(); ++i)
     {
         if (regions[i].type == INNER)
         {
-            if (regions[i].row >= 0 && regions[i].row < region.row() && regions[i].col >= 0 &&
-                regions[i].col < region.col())
+            if (0 <= regions[i].row && regions[i].row < region.row() &&
+                0 <= regions[i].col && regions[i].col < region.col())
             {
                 double area = regions[i].width * regions[i].width;
                 X_lap[0](regions[i].index) = laplacian_image.at<cv::Vec3f>(regions[i].row, regions[i].col)[0] * area;
@@ -64,6 +69,10 @@ void AdaptiveSolver::solve(std::vector<cv::Vec3f> & color)
             }
         }
     }
+
+    ///
+    /// calculate color: y
+    ///
 
     color.resize(tree.get_number_of_pixel_points());
 
@@ -82,6 +91,7 @@ void AdaptiveSolver::solve(std::vector<cv::Vec3f> & color)
 
         X_lap[i] -= laplacian_matrix * X_boundary;
 
+        // y s.t. L^I y = X_lap[i]
         const Eigen::VectorXd & y = solver.solve(X_lap[i]);
 
         if (solver.info() != Eigen::Success)
@@ -90,7 +100,7 @@ void AdaptiveSolver::solve(std::vector<cv::Vec3f> & color)
             abort();
         }
 
-        for (int j = 0; j < y.rows(); ++j)
+        for (size_t j = 0; j < y.rows(); ++j)
         {
             color[j][i] = (float) y(j);
         }

@@ -16,12 +16,13 @@
 #include <tbb/tbb.h>
 #include <ctime>
 
-
-std::vector<std::vector<cv::Vec3f>> PoissonSolver::coefs;
-std::vector<std::unique_ptr<QuadTree>> PoissonSolver::trees;
-std::vector<std::unique_ptr<AdaptiveEvaluation>> PoissonSolver::evaluators;
-
+// timer
 static clock_t times[3] = { 0, 0, 0 };
+
+// static vars
+std::vector<std::unique_ptr<QuadTree>> PoissonSolver::trees;
+std::vector<std::vector<cv::Vec3f>> PoissonSolver::coefs;
+std::vector<std::unique_ptr<AdaptiveEvaluation>> PoissonSolver::evaluators;
 
 PoissonSolver::PoissonSolver(
         const cv::Size & canvasSize,
@@ -29,15 +30,12 @@ PoissonSolver::PoissonSolver(
         const Region & region,
         double scale,
         const CPoint2d & origin,
-        int n_rings,
-        const cv::Mat & edgeNeighborMask
+        int n_rings
         ) :
         laplacianImage(laplacianImage),
         region(region),
         scale(scale),
-        origin(origin),
-        criticalPoints(region.get_number_of_regions()),
-        edgeNeighborMask(edgeNeighborMask)
+        origin(origin)
 {
     // TODO: support scaling
     assert(scale == 1.0);
@@ -97,12 +95,12 @@ PoissonSolver::PoissonSolver(
 
 void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box, int n_rings)
 {
-    st_debug("regionComputation(%d)", index);
+    st_debug("PoissonSolver::regionComputation for region %d", index);
 
     clock_t t = clock();
 
     ///
-    /// quad tree
+    /// quad tree & Laplacian matrix construction
     ///
 
     trees[index].reset(new QuadTree(
@@ -120,7 +118,7 @@ void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box
     }
 
     ///
-    /// linear system
+    /// control coefficient \lambda solution
     ///
 
     AdaptiveSolver solver(region, index, *trees[index], laplacianImage);
@@ -130,10 +128,10 @@ void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box
     t = clock();
 
     ///
-    /// rendering
+    /// green function & final rendering
     ///
 
-    evaluators[index].reset(new AdaptiveEvaluation(*trees[index], coefs[index]));
+    evaluators[index].reset(new AdaptiveEvaluation(index, *trees[index], coefs[index]));
 
     BoundingBox<int> box_;
     box_.row = (int) floor((box.row - origin[0]) * scale);
@@ -141,10 +139,9 @@ void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box
     box_.width = std::min((int) ceil(box.width * scale) + 1, result.cols - box_.col);
     box_.height = std::min((int) ceil(box.height * scale) + 1, result.rows - box_.row);
 
-    criticalPoints[index] = evaluators[index]->full_solution(
+    evaluators[index]->full_solution(
             region,
             box_,
-            1.0 / scale,
             CPoint2d(box_.row / scale + origin[0], box_.col / scale + origin[1]),
             laplacianImage,
             n_rings,

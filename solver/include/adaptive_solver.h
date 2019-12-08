@@ -16,12 +16,14 @@ public:
     void solve(std::vector<cv::Vec3f> & color);
 
 private:
-    bool solved;
-    int region_id;
+    // primitives
     const Region & region;
-    const cv::Mat & laplacian_image;
+    int region_id;
     const QuadTree & tree;
     const Eigen::SparseMatrix<double> & laplacian_matrix;
+    const cv::Mat & laplacian_image;
+
+    // Cholesky decomposition solver
     Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
 };
 

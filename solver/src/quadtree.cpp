@@ -15,12 +15,15 @@ QuadTree::QuadTree(
         int region_id,
         const cv::Mat & laplacian,
         int step
-        ) :
+) :
         region(region),
         region_id(region_id),
         step(step)
 {
-    // tree initialization
+    ///
+    /// tree initialization
+    ///
+
     const BoundingBox<int> & box = region.get_boundingbox(region_id);
     height = (int) ceil((box.height + 4) / (double) step);
     width = (int) ceil((box.width + 4) / (double) step);
@@ -29,7 +32,10 @@ QuadTree::QuadTree(
     origin[1] = box.col - 2;
     quadtree.set_head(TreeNodeD(origin[0], origin[1], -1));
 
-    // tree construction
+    ///
+    /// tree construction
+    ///
+
     for (int i = 0; i < height; ++i)
     {
         for (int j = 0; j < width; ++j)
@@ -40,7 +46,10 @@ QuadTree::QuadTree(
         }
     }
 
-    // create mask
+    ///
+    /// create mask
+    ///
+
     CPoint2i mask_ori(box.row - 2, box.col - 2);
     Mat mask = Mat::zeros(box.height + 4, box.width + 4, CV_8UC1);
 
@@ -89,7 +98,10 @@ QuadTree::QuadTree(
         }
     }
 
-    // node splitting
+    ///
+    /// node splitting
+    ///
+
     int cell_width = step;
     for (int depth = 1; cell_width > 1; ++depth)
     {
@@ -97,6 +109,7 @@ QuadTree::QuadTree(
         {
             break;
         }
+
         cell_width /= 2;
         tree<TreeNodeD>::fixed_depth_iterator ite = quadtree.begin_fixed(quadtree.begin(), depth);
 
@@ -113,7 +126,10 @@ QuadTree::QuadTree(
         }
     }
 
-    //label cell types
+    ///
+    /// label cell types
+    ///
+
     tree<TreeNodeD>::leaf_iterator ite = quadtree.begin_leaf();
     while (quadtree.is_valid(ite))
     {
@@ -129,29 +145,46 @@ QuadTree::QuadTree(
         }
         ++ite;
     }
-    //add leaf node numbers
-    ite = quadtree.begin_leaf();
+
+    ///
+    /// leaf node index
+    ///
+
     int count = 0;
+
+    // inner nodes
+    ite = quadtree.begin_leaf();
+
     while (quadtree.is_valid(ite))
     {
         if (ite->type == INNER)
         {
             ite->index = count++;
         }
+
         ++ite;
     }
-    ite = quadtree.begin_leaf();
+
     inner_node_count = count;
+
+    // boundary nodes
+    ite = quadtree.begin_leaf();
+
     while (quadtree.is_valid(ite))
     {
         if (ite->type == BOUNDARY)
         {
             ite->index = count++;
         }
+
         ++ite;
     }
+
     pixel_node_count = count;
+
+    // 1-order outer nodes (all width 1)
     ite = quadtree.begin_leaf();
+
     while (quadtree.is_valid(ite))
     {
         if (ite->type == OUTER)
@@ -171,15 +204,24 @@ QuadTree::QuadTree(
                 ite->index = -2;
             }
         }
+
         ++ite;
     }
+
     all_node_count = count;
+
+    ///
+    /// Laplacian Matrix
+    ///
 
     construct_laplacian();
 
-    //prepare for search
+    ///
+    /// prepare for search
+    ///
     {
         tree<TreeNodeD>::sibling_iterator ite = quadtree.begin(quadtree.begin());
+
         while (quadtree.is_valid(ite))
         {
             iterators.push_back(ite);
@@ -202,7 +244,8 @@ bool QuadTree::should_split(
         {
             CPoint2i p(node.row - mask_ori[0] + i, node.col - mask_ori[1] + j);
 
-            if (p[0] >= 0 && p[1] >= 0 && p[0] < mask.rows && p[1] < mask.cols)
+//            if (p[0] >= 0 && p[1] >= 0 && p[0] < mask.rows && p[1] < mask.cols)
+            if (0 <= p[0] && p[0] < mask.rows && 0 <= p[1] && p[1] < mask.cols)
             {
                 if (mask.at<uchar>(p[0], p[1]) != 0)
                 {
@@ -349,10 +392,15 @@ inline int find(
 
 void QuadTree::construct_laplacian()
 {
-    vector<tree<TreeNodeD>::leaf_iterator> points_list(all_node_count);
-    tree<TreeNodeD>::leaf_iterator ite = quadtree.begin_leaf();
+    ///
+    /// Fade2D Voronoi knots
+    ///
+
     vector<GEOM_FADE2D::Point2> points;
     points.reserve(all_node_count);
+
+    vector<tree<TreeNodeD>::leaf_iterator> points_list(all_node_count);
+    tree<TreeNodeD>::leaf_iterator ite = quadtree.begin_leaf();
 
     while (quadtree.is_valid(ite))
     {
@@ -366,6 +414,10 @@ void QuadTree::construct_laplacian()
         }
         ++ite;
     }
+
+    ///
+    /// Delaunay Triangulation
+    ///
 
     GEOM_FADE2D::Fade_2D del_tri(static_cast<unsigned int>(points.size()));
     del_tri.insert(points);
@@ -453,9 +505,7 @@ void QuadTree::construct_laplacian()
             }
         }
     }
-    //	cout << "adj time " << (float)(clock() - t) / CLOCKS_PER_SEC << "s\n";
 
-    /*****debug for output Voronoi diagram*********/
 #ifdef QUADTREE_VORONOI_OUTPUT
     if (origin[0] > 0)
     {
@@ -606,9 +656,11 @@ void QuadTree::construct_laplacian()
         }
     }
 #endif
-    /**************end debug***********************/
 
-    // construct Laplacian matrix
+    ///
+    /// construct Laplacian matrix
+    ///
+
     vector<Eigen::Triplet<double>> triplet_list_basis;
     triplet_list_basis.reserve(8 * adjacent_list.size());
 
@@ -658,6 +710,7 @@ void QuadTree::construct_laplacian()
 
     laplacian_matrix_basis.resize(all_node_count, pixel_node_count);
     laplacian_matrix_basis.setFromTriplets(triplet_list_basis.begin(), triplet_list_basis.end());
+
     laplacian_matrix_solver.resize(inner_node_count, pixel_node_count);
     laplacian_matrix_solver.setFromTriplets(triplet_list_solver.begin(), triplet_list_solver.end());
 }

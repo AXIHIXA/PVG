@@ -29,7 +29,11 @@ Region::Region(const cv::Mat& mask, const cv::Mat& sideMask) :mask(mask)
 		for (int j = 0; j < mask.cols; ++j)
 		{
 			int id = abs(mask.at<int>(i, j));
-			if (id > number_of_regions) number_of_regions = id;
+
+			if (id > number_of_regions)
+            {
+			    number_of_regions = id;
+            }
 		}
 	}
 

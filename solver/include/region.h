@@ -119,7 +119,8 @@ public:
     {
         int r = int(p[0]);
         int c = int(p[1]);
-        if (r >= 0 && r < side_mask.rows && c >= 0 && c < side_mask.cols)
+
+        if (0 <= r && r < side_mask.rows && 0 <= c && c < side_mask.cols)
         {
             return side_mask.at<int>(r, c) != 0;
         }

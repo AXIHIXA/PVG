@@ -24,8 +24,7 @@ public:
             const Region & region,
             double scale,
             const CPoint2d & origin,
-            int n_rings,
-            const cv::Mat & edgeNeighborMask);
+            int n_rings);
 
     cv::Mat getResultImage() const
     {
@@ -37,8 +36,8 @@ private:
 
 private:
     // solver
-    static std::vector<std::vector<cv::Vec3f>> coefs;
     static std::vector<std::unique_ptr<QuadTree>> trees;
+    static std::vector<std::vector<cv::Vec3f>> coefs;
     static std::vector<std::unique_ptr<AdaptiveEvaluation>> evaluators;
 
     // canvas
@@ -47,9 +46,7 @@ private:
 
     // discretized primitives
     const cv::Mat & laplacianImage;
-    const cv::Mat & edgeNeighborMask;
     const Region & region;
-    std::vector<std::vector<CPoint2i>> criticalPoints;
 
     // renerded final PVG result
     cv::Mat result;
