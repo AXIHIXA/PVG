@@ -98,3 +98,4 @@ fabric.properties
 # var
 var/
 resultImg/
+update.sh

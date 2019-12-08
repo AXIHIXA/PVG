@@ -102,7 +102,7 @@ QuadTree::QuadTree(
 
         while (quadtree.is_valid(ite))
         {
-            if (to_split(*ite, mask, pseudo_laplacian, mask_ori))
+            if (should_split(*ite, mask, pseudo_laplacian, mask_ori))
             {
                 quadtree.append_child(ite, TreeNodeD(ite->row, ite->col, cell_width));
                 quadtree.append_child(ite, TreeNodeD(ite->row, ite->col + cell_width, cell_width));
@@ -188,7 +188,7 @@ QuadTree::QuadTree(
     }
 }
 
-bool QuadTree::to_split(
+bool QuadTree::should_split(
         const TreeNodeD & node,
         const Mat & mask,
         const Mat & pseudo_laplacian,
@@ -660,16 +660,6 @@ void QuadTree::construct_laplacian()
     laplacian_matrix_basis.setFromTriplets(triplet_list_basis.begin(), triplet_list_basis.end());
     laplacian_matrix_solver.resize(inner_node_count, pixel_node_count);
     laplacian_matrix_solver.setFromTriplets(triplet_list_solver.begin(), triplet_list_solver.end());
-}
-
-const Eigen::SparseMatrix<double> & QuadTree::get_laplacian_basis() const
-{
-    return laplacian_matrix_basis;
-}
-
-const Eigen::SparseMatrix<double> & QuadTree::get_laplacian_solver() const
-{
-    return laplacian_matrix_solver;
 }
 
 void QuadTree::get_regions(vector<TreeNodeD> & regions) const

@@ -19,11 +19,7 @@ public:
             const Region & region,
             int region_id,
             const cv::Mat & laplacian,
-            int step);
-
-    const Eigen::SparseMatrix<double> & get_laplacian_basis() const;
-
-    const Eigen::SparseMatrix<double> & get_laplacian_solver() const;
+            int step);   // step must be 2^n
 
     inline int get_number_of_inner_points() const
     {
@@ -40,6 +36,16 @@ public:
         return all_node_count;
     }
 
+    inline const Eigen::SparseMatrix<double> & get_laplacian_basis() const
+    {
+        return laplacian_matrix_basis;
+    }
+
+    inline const Eigen::SparseMatrix<double> & get_laplacian_solver() const
+    {
+        return laplacian_matrix_solver;
+    }
+
     inline bool in_range(const CPoint2f & p) const
     {
         return (origin[0] <= p[0] && p[0] < origin[0] + step * height &&
@@ -48,13 +54,13 @@ public:
 
     int search(const CPoint2f & p) const;
 
+    int search_level1(const CPoint2f & p) const;
+
     void get_regions(std::vector<TreeNodeD> & regions) const;
 
     void get_level1_nodes(std::vector<TreeNodeD> & nodes) const;
 
     void get_neighbor_nodes(const CPoint2d & p, std::vector<int> & neighbors, int n_rings, double radius) const;
-
-    int search_level1(const CPoint2f & p) const;
 
     bool with_inner_node(const TreeNodeD & node) const;
 
@@ -65,7 +71,7 @@ public:
 private:
     void construct_laplacian();
 
-    inline bool to_split(
+    static inline bool should_split(
             const TreeNodeD & node,
             const cv::Mat & mask,
             const cv::Mat & pseudo_laplacian,
@@ -82,17 +88,17 @@ private:
     int height;
     int width;
 
-    int pixel_node_count;
-    int inner_node_count;
+    size_t inner_node_count;
+    size_t pixel_node_count;
+    size_t all_node_count;
 
-    int all_node_count;
-
-    Eigen::SparseMatrix<double> laplacian_matrix_solver;
     Eigen::SparseMatrix<double> laplacian_matrix_basis;
+    Eigen::SparseMatrix<double> laplacian_matrix_solver;
 
     tree<TreeNodeD> quadtree;
 
-    // for search acceleration
+    // buffer of sibling iterators
+    // initiated in constructor, used for search acceleration
     std::vector<tree<TreeNodeD>::sibling_iterator> iterators;
 };
 
