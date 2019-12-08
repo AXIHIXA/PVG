@@ -3671,7 +3671,7 @@ void smp_lsfitlinearw(const real_1d_array &y, const real_1d_array &w, const real
 Weighted constained linear least squares fitting.
 
 This  is  variation  of LSFitLinearW(), which searchs for min|A*x=b| given
-that  K  additional  constaints  C*x=bc are satisfied. It reduces original
+that  K  additional  constaints  C*x=bc are satisfied. It reduces origin
 task to modified one: min|B*y-d| WITHOUT constraints,  then LSFitLinearW()
 is called.
 
@@ -3900,7 +3900,7 @@ void smp_lsfitlinear(const real_1d_array &y, const real_2d_array &fmatrix, ae_in
 Constained linear least squares fitting.
 
 This  is  variation  of LSFitLinear(),  which searchs for min|A*x=b| given
-that  K  additional  constaints  C*x=bc are satisfied. It reduces original
+that  K  additional  constaints  C*x=bc are satisfied. It reduces origin
 task to modified one: min|B*y-d| WITHOUT constraints,  then  LSFitLinear()
 is called.
 
@@ -5033,7 +5033,7 @@ OUTPUT PARAMETERS:
                 * each element of Idx2 corresponds to same-numbered
                   element of X2
                 * each element of Idx2 is index of  corresponding  element
-                  of X2 at original array X, i.e. I-th  row  of  X2  is
+                  of X2 at origin array X, i.e. I-th  row  of  X2  is
                   Idx2[I]-th row of X.
                 * elements of Idx2 can be treated as parameter values
                   which should be used when building new parametric curve

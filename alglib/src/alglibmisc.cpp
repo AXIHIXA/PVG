@@ -737,7 +737,7 @@ INPUT PARAMETERS
     K           -   number of neighbors to return, K>=1
     SelfMatch   -   whether self-matches are allowed:
                     * if True, nearest neighbor may be the point itself
-                      (if it exists in original dataset)
+                      (if it exists in origin dataset)
                     * if False, then only points with non-zero distance
                       are returned
                     * if not given, considered True
@@ -781,7 +781,7 @@ INPUT PARAMETERS
     K           -   number of neighbors to return, K>=1
     SelfMatch   -   whether self-matches are allowed:
                     * if True, nearest neighbor may be the point itself
-                      (if it exists in original dataset)
+                      (if it exists in origin dataset)
                     * if False, then only points with non-zero distance
                       are returned
                     * if not given, considered True
@@ -829,7 +829,7 @@ INPUT PARAMETERS
     R           -   radius of sphere (in corresponding norm), R>0
     SelfMatch   -   whether self-matches are allowed:
                     * if True, nearest neighbor may be the point itself
-                      (if it exists in original dataset)
+                      (if it exists in origin dataset)
                     * if False, then only points with non-zero distance
                       are returned
                     * if not given, considered True
@@ -873,7 +873,7 @@ INPUT PARAMETERS
     R           -   radius of sphere (in corresponding norm), R>0
     SelfMatch   -   whether self-matches are allowed:
                     * if True, nearest neighbor may be the point itself
-                      (if it exists in original dataset)
+                      (if it exists in origin dataset)
                     * if False, then only points with non-zero distance
                       are returned
                     * if not given, considered True
@@ -921,7 +921,7 @@ INPUT PARAMETERS
     K           -   number of neighbors to return, K>=1
     SelfMatch   -   whether self-matches are allowed:
                     * if True, nearest neighbor may be the point itself
-                      (if it exists in original dataset)
+                      (if it exists in origin dataset)
                     * if False, then only points with non-zero distance
                       are returned
                     * if not given, considered True
@@ -972,7 +972,7 @@ INPUT PARAMETERS
     K           -   number of neighbors to return, K>=1
     SelfMatch   -   whether self-matches are allowed:
                     * if True, nearest neighbor may be the point itself
-                      (if it exists in original dataset)
+                      (if it exists in origin dataset)
                     * if False, then only points with non-zero distance
                       are returned
                     * if not given, considered True
@@ -2992,7 +2992,7 @@ INPUT PARAMETERS
     K           -   number of neighbors to return, K>=1
     SelfMatch   -   whether self-matches are allowed:
                     * if True, nearest neighbor may be the point itself
-                      (if it exists in original dataset)
+                      (if it exists in origin dataset)
                     * if False, then only points with non-zero distance
                       are returned
                     * if not given, considered True
@@ -3037,7 +3037,7 @@ INPUT PARAMETERS
     R           -   radius of sphere (in corresponding norm), R>0
     SelfMatch   -   whether self-matches are allowed:
                     * if True, nearest neighbor may be the point itself
-                      (if it exists in original dataset)
+                      (if it exists in origin dataset)
                     * if False, then only points with non-zero distance
                       are returned
                     * if not given, considered True
@@ -3133,7 +3133,7 @@ INPUT PARAMETERS
     K           -   number of neighbors to return, K>=1
     SelfMatch   -   whether self-matches are allowed:
                     * if True, nearest neighbor may be the point itself
-                      (if it exists in original dataset)
+                      (if it exists in origin dataset)
                     * if False, then only points with non-zero distance
                       are returned
                     * if not given, considered True

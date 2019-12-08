@@ -24,28 +24,27 @@ std::vector<std::unique_ptr<AdaptiveEvaluation>> PoissonSolver::evaluators;
 static clock_t times[3] = { 0, 0, 0 };
 
 PoissonSolver::PoissonSolver(
-        const cv::Size & canvas_size,
-        const cv::Mat & laplacian_image,
+        const cv::Size & canvasSize,
+        const cv::Mat & laplacianImage,
         const Region & region,
-        const double scale,
+        double scale,
         const CPoint2d & origin,
-        const std::vector<CPoint2d> & end_points,
         int n_rings,
-        const cv::Mat & convert_to_laplacian_mask
+        const cv::Mat & edgeNeighborMask
         ) :
-        laplacian_image(laplacian_image),
+        laplacianImage(laplacianImage),
         region(region),
         scale(scale),
         origin(origin),
-        critical_points(region.get_number_of_regions()),
-        convert_to_laplacian_mask(convert_to_laplacian_mask)
+        criticalPoints(region.get_number_of_regions()),
+        edgeNeighborMask(edgeNeighborMask)
 {
     // TODO: support scaling
     assert(scale == 1.0);
 
     clock_t t_total = clock();
 
-    result.create(canvas_size.height, canvas_size.width, CV_32FC3);
+    result.create(canvasSize.height, canvasSize.width, CV_32FC3);
     result.setTo(cv::Vec3f(-10000, -10000, -10000));
 
     BoundingBox<double> window_box(
@@ -69,7 +68,7 @@ PoissonSolver::PoissonSolver(
         bounding_boxes[i].row = box.row - 1;
         bounding_boxes[i].col = box.col - 1;
 
-        bounding_boxes[i].intersection_boundingbox(window_box);
+        bounding_boxes[i].intersection_boundingbox(window_box);  // only needed when scaled or w00 != (0, 0)
     }
 
 #ifdef QUADTREE_VORONOI_OUTPUT
@@ -98,11 +97,21 @@ PoissonSolver::PoissonSolver(
 
 void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box, int n_rings)
 {
-    st_debug("regionComputation");
+    st_debug("regionComputation(%d)", index);
 
     clock_t t = clock();
 
-    trees[index].reset(new QuadTree(region, index, laplacian_image, 8, false, convert_to_laplacian_mask));
+    ///
+    /// quad tree
+    ///
+
+    trees[index].reset(new QuadTree(
+            region,
+            index,
+            laplacianImage,
+            8,
+            false,
+            edgeNeighborMask));
 
     times[0] += clock() - t;
     t = clock();
@@ -112,11 +121,19 @@ void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box
         return;
     }
 
-    AdaptiveSolver solver(region, index, *trees[index], laplacian_image);
+    ///
+    /// linear system
+    ///
+
+    AdaptiveSolver solver(region, index, *trees[index], laplacianImage);
     solver.solve(coefs[index]);
 
     times[1] += clock() - t;
     t = clock();
+
+    ///
+    /// rendering
+    ///
 
     evaluators[index].reset(new AdaptiveEvaluation(*trees[index], coefs[index]));
 
@@ -126,12 +143,12 @@ void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box
     box_.width = std::min((int) ceil(box.width * scale) + 1, result.cols - box_.col);
     box_.height = std::min((int) ceil(box.height * scale) + 1, result.rows - box_.row);
 
-    critical_points[index] = evaluators[index]->full_solution(
+    criticalPoints[index] = evaluators[index]->full_solution(
             region,
             box_,
             1.0 / scale,
             CPoint2d(box_.row / scale + origin[0], box_.col / scale + origin[1]),
-            laplacian_image,
+            laplacianImage,
             n_rings,
             result);
 

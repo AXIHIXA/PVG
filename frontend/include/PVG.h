@@ -54,7 +54,7 @@ private:
 
     QPair<Region *, cv::Mat> discretization();
 
-    void evaluation(Region * region, const cv::Mat laplacian_image, int n_rings);
+    void evaluation(Region * region, const cv::Mat & laplacian_image, int n_rings);
 
 private:
     // cpu capacity

@@ -6894,7 +6894,7 @@ void smp_lsfitlinearw(const real_1d_array &y, const real_1d_array &w, const real
 Weighted constained linear least squares fitting.
 
 This  is  variation  of LSFitLinearW(), which searchs for min|A*x=b| given
-that  K  additional  constaints  C*x=bc are satisfied. It reduces original
+that  K  additional  constaints  C*x=bc are satisfied. It reduces origin
 task to modified one: min|B*y-d| WITHOUT constraints,  then LSFitLinearW()
 is called.
 
@@ -7046,7 +7046,7 @@ void smp_lsfitlinearwc(const real_1d_array &y, const real_1d_array &w, const rea
 Weighted constained linear least squares fitting.
 
 This  is  variation  of LSFitLinearW(), which searchs for min|A*x=b| given
-that  K  additional  constaints  C*x=bc are satisfied. It reduces original
+that  K  additional  constaints  C*x=bc are satisfied. It reduces origin
 task to modified one: min|B*y-d| WITHOUT constraints,  then LSFitLinearW()
 is called.
 
@@ -7496,7 +7496,7 @@ void smp_lsfitlinear(const real_1d_array &y, const real_2d_array &fmatrix, ae_in
 Constained linear least squares fitting.
 
 This  is  variation  of LSFitLinear(),  which searchs for min|A*x=b| given
-that  K  additional  constaints  C*x=bc are satisfied. It reduces original
+that  K  additional  constaints  C*x=bc are satisfied. It reduces origin
 task to modified one: min|B*y-d| WITHOUT constraints,  then  LSFitLinear()
 is called.
 
@@ -7644,7 +7644,7 @@ void smp_lsfitlinearc(const real_1d_array &y, const real_2d_array &fmatrix, cons
 Constained linear least squares fitting.
 
 This  is  variation  of LSFitLinear(),  which searchs for min|A*x=b| given
-that  K  additional  constaints  C*x=bc are satisfied. It reduces original
+that  K  additional  constaints  C*x=bc are satisfied. It reduces origin
 task to modified one: min|B*y-d| WITHOUT constraints,  then  LSFitLinear()
 is called.
 
@@ -9774,7 +9774,7 @@ OUTPUT PARAMETERS:
                 * each element of Idx2 corresponds to same-numbered
                   element of X2
                 * each element of Idx2 is index of  corresponding  element
-                  of X2 at original array X, i.e. I-th  row  of  X2  is
+                  of X2 at origin array X, i.e. I-th  row  of  X2  is
                   Idx2[I]-th row of X.
                 * elements of Idx2 can be treated as parameter values
                   which should be used when building new parametric curve
@@ -16411,7 +16411,7 @@ void spline1dconvcubic(/* Real    */ ae_vector* x,
      * Now we've checked and preordered everything, so we:
      * * call internal GridDiff() function to get Hermite form of spline
      * * convert using internal Conv() function
-     * * convert Y2 back to original order
+     * * convert Y2 back to origin order
      */
     spline1d_spline1dgriddiffcubicinternal(x, y, n, boundltype, boundl, boundrtype, boundr, &d, &a1, &a2, &a3, &b, &dt, _state);
     spline1dconvdiffinternal(x, y, &d, n, x2, n2, y2, ae_true, &d1, ae_false, &d2, ae_false, _state);
@@ -16607,7 +16607,7 @@ void spline1dconvdiffcubic(/* Real    */ ae_vector* x,
      * Now we've checked and preordered everything, so we:
      * * call internal GridDiff() function to get Hermite form of spline
      * * convert using internal Conv() function
-     * * convert Y2 back to original order
+     * * convert Y2 back to origin order
      */
     spline1d_spline1dgriddiffcubicinternal(x, y, n, boundltype, boundl, boundrtype, boundr, &d, &a1, &a2, &a3, &b, &dt, _state);
     spline1dconvdiffinternal(x, y, &d, n, x2, n2, y2, ae_true, d2, ae_true, &rt1, ae_false, _state);
@@ -16810,7 +16810,7 @@ void spline1dconvdiff2cubic(/* Real    */ ae_vector* x,
      * Now we've checked and preordered everything, so we:
      * * call internal GridDiff() function to get Hermite form of spline
      * * convert using internal Conv() function
-     * * convert Y2 back to original order
+     * * convert Y2 back to origin order
      */
     spline1d_spline1dgriddiffcubicinternal(x, y, n, boundltype, boundl, boundrtype, boundr, &d, &a1, &a2, &a3, &b, &dt, _state);
     spline1dconvdiffinternal(x, y, &d, n, x2, n2, y2, ae_true, d2, ae_true, dd2, ae_true, _state);
@@ -23749,7 +23749,7 @@ void _pexec_lsfitlinearw(/* Real    */ ae_vector* y,
 Weighted constained linear least squares fitting.
 
 This  is  variation  of LSFitLinearW(), which searchs for min|A*x=b| given
-that  K  additional  constaints  C*x=bc are satisfied. It reduces original
+that  K  additional  constaints  C*x=bc are satisfied. It reduces origin
 task to modified one: min|B*y-d| WITHOUT constraints,  then LSFitLinearW()
 is called.
 
@@ -23999,7 +23999,7 @@ void lsfitlinearwc(/* Real    */ ae_vector* y,
         }
         
         /*
-         * then, convert back to original answer: C = C0 + Q2'*Y0
+         * then, convert back to origin answer: C = C0 + Q2'*Y0
          */
         ae_vector_set_length(c, m, _state);
         ae_v_move(&c->ptr.p_double[0], 1, &c0.ptr.p_double[0], 1, ae_v_len(0,m-1));
@@ -24180,7 +24180,7 @@ void _pexec_lsfitlinear(/* Real    */ ae_vector* y,
 Constained linear least squares fitting.
 
 This  is  variation  of LSFitLinear(),  which searchs for min|A*x=b| given
-that  K  additional  constaints  C*x=bc are satisfied. It reduces original
+that  K  additional  constaints  C*x=bc are satisfied. It reduces origin
 task to modified one: min|B*y-d| WITHOUT constraints,  then  LSFitLinear()
 is called.
 
@@ -27387,7 +27387,7 @@ static void lsfit_internalchebyshevfit(/* Real    */ ae_vector* x,
     
     /*
      * Fill design matrix, Y2, W2:
-     * * first N rows with basis functions for original points
+     * * first N rows with basis functions for origin points
      * * next M rows with decay terms
      */
     for(i=0; i<=n-1; i++)
@@ -29481,7 +29481,7 @@ OUTPUT PARAMETERS:
                 * each element of Idx2 corresponds to same-numbered
                   element of X2
                 * each element of Idx2 is index of  corresponding  element
-                  of X2 at original array X, i.e. I-th  row  of  X2  is
+                  of X2 at origin array X, i.e. I-th  row  of  X2  is
                   Idx2[I]-th row of X.
                 * elements of Idx2 can be treated as parameter values
                   which should be used when building new parametric curve

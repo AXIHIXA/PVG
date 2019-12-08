@@ -38,7 +38,7 @@ public:
         {
             tolerance = 2;
         }
-        std::vector< double > polyline;   // original polyline, assume not empty
+        std::vector< double > polyline;   // origin polyline, assume not empty
         std::vector< double > result;      // resulting simplified polyline
 
         //printf("%d %f\n", stroke.s_points.size(), sample_rate);

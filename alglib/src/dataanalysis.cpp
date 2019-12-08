@@ -197,10 +197,10 @@ clustering (AHC).
 
 Following information is returned:
 
-* NPoints contains number of points in the original dataset
+* NPoints contains number of points in the origin dataset
 
 * Z contains information about merges performed  (see below).  Z  contains
-  indexes from the original (unsorted) dataset and it can be used when you
+  indexes from the origin (unsorted) dataset and it can be used when you
   need to know what points were merged. However, it is not convenient when
   you want to build a dendrograd (see below).
 
@@ -225,7 +225,7 @@ FORMAL DESCRIPTION OF FIELDS:
                     * Z[I,0]<Z[I,1]
                     * clusters are  numbered  from 0 to 2*NPoints-2,  with
                       indexes from 0 to NPoints-1 corresponding to  points
-                      of the original dataset, and indexes from NPoints to
+                      of the origin dataset, and indexes from NPoints to
                       2*NPoints-2  correspond  to  clusters  generated  by
                       subsequent  merges  (I-th  row  of Z creates cluster
                       with index NPoints+I).
@@ -235,17 +235,17 @@ FORMAL DESCRIPTION OF FIELDS:
                     permutation which rearranges points in such  way  that
                     subsequent merges are  performed  on  adjacent  points
                     (such order is needed if you want to build dendrogram).
-                    However,  indexes  in  Z  are  related  to   original,
+                    However,  indexes  in  Z  are  related  to   origin,
                     unrearranged sequence of points.
 
     P               array[NPoints], permutation which reorders points  for
                     dendrogram  construction.  P[i] contains  index of the
                     position  where  we  should  move  I-th  point  of the
-                    original dataset in order to apply merges PZ/PM.
+                    origin dataset in order to apply merges PZ/PM.
 
     PZ              same as Z, but for permutation of points given  by  P.
                     The  only  thing  which  changed  are  indexes  of the
-                    original points; indexes of clusters remained same.
+                    origin points; indexes of clusters remained same.
 
     MergeDist       array[NPoints-1], contains distances between  clusters
                     being merged (MergeDist[i] correspond to merge  stored
@@ -344,15 +344,15 @@ This  structure   is  used  to  store  results of the k-means++ clustering
 algorithm.
 
 Following information is always returned:
-* NPoints contains number of points in the original dataset
+* NPoints contains number of points in the origin dataset
 * TerminationType contains completion code, negative on failure, positive
   on success
 * K contains number of clusters
 
 For positive TerminationType we return:
-* NFeatures contains number of variables in the original dataset
+* NFeatures contains number of variables in the origin dataset
 * C, which contains centers found by algorithm
-* CIdx, which maps points of the original dataset to clusters
+* CIdx, which maps points of the origin dataset to clusters
 
 FORMAL DESCRIPTION OF FIELDS:
     NPoints         number of points, >=0
@@ -781,7 +781,7 @@ NOTE 1: hierarchical clustering algorithms require large amounts of memory.
         In particular, this implementation needs  sizeof(double)*NPoints^2
         bytes, which are used to store distance matrix. In  case  we  work
         with user-supplied matrix, this amount is multiplied by 2 (we have
-        to store original matrix and to work with its copy).
+        to store origin matrix and to work with its copy).
 
         For example, problem with 10000 points  would require 800M of RAM,
         even when working in a 1-dimensional space.
@@ -3145,7 +3145,7 @@ void mlpcreatec2(const ae_int_t nin, const ae_int_t nhid1, const ae_int_t nhid2,
 Copying of neural network
 
 INPUT PARAMETERS:
-    Network1 -   original
+    Network1 -   origin
 
 OUTPUT PARAMETERS:
     Network2 -   copy
@@ -5202,7 +5202,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset in dense format; one sample = one row:
+    XY      -   origin dataset in dense format; one sample = one row:
                 * first NIn columns contain inputs,
                 * for regression problem, next NOut columns store
                   desired outputs.
@@ -5288,7 +5288,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset in sparse format; one sample = one row:
+    XY      -   origin dataset in sparse format; one sample = one row:
                 * MATRIX MUST BE STORED IN CRS FORMAT
                 * first NIn columns contain inputs.
                 * for regression problem, next NOut columns store
@@ -5374,7 +5374,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset in dense format; one sample = one row:
+    XY      -   origin dataset in dense format; one sample = one row:
                 * first NIn columns contain inputs,
                 * for regression problem, next NOut columns store
                   desired outputs.
@@ -5382,7 +5382,7 @@ INPUT PARAMETERS:
                   stores class number.
     SetSize -   real size of XY, SetSize>=0;
     Idx     -   subset of SubsetSize elements, array[SubsetSize]:
-                * Idx[I] stores row index in the original dataset which is
+                * Idx[I] stores row index in the origin dataset which is
                   given by XY. Gradient is calculated with respect to rows
                   whose indexes are stored in Idx[].
                 * Idx[]  must store correct indexes; this function  throws
@@ -5474,7 +5474,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset in sparse format; one sample = one row:
+    XY      -   origin dataset in sparse format; one sample = one row:
                 * MATRIX MUST BE STORED IN CRS FORMAT
                 * first NIn columns contain inputs,
                 * for regression problem, next NOut columns store
@@ -5483,7 +5483,7 @@ INPUT PARAMETERS:
                   stores class number.
     SetSize -   real size of XY, SetSize>=0;
     Idx     -   subset of SubsetSize elements, array[SubsetSize]:
-                * Idx[I] stores row index in the original dataset which is
+                * Idx[I] stores row index in the origin dataset which is
                   given by XY. Gradient is calculated with respect to rows
                   whose indexes are stored in Idx[].
                 * Idx[]  must store correct indexes; this function  throws
@@ -5671,7 +5671,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset; one sample = one row;
+    XY      -   origin dataset; one sample = one row;
                 first NIn columns contain inputs,
                 next NOut columns - desired outputs.
     SetSize -   real size of XY, SetSize>=0;
@@ -5754,7 +5754,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset given by sparse matrix;
+    XY      -   origin dataset given by sparse matrix;
                 one sample = one row;
                 first NIn columns contain inputs,
                 next NOut columns - desired outputs.
@@ -11915,7 +11915,7 @@ NOTE 1: hierarchical clustering algorithms require large amounts of memory.
         In particular, this implementation needs  sizeof(double)*NPoints^2
         bytes, which are used to store distance matrix. In  case  we  work
         with user-supplied matrix, this amount is multiplied by 2 (we have
-        to store original matrix and to work with its copy).
+        to store origin matrix and to work with its copy).
         
         For example, problem with 10000 points  would require 800M of RAM,
         even when working in a 1-dimensional space.
@@ -14709,7 +14709,7 @@ double dfavgrelerror(decisionforest* df,
 Copying of DecisionForest strucure
 
 INPUT PARAMETERS:
-    DF1 -   original
+    DF1 -   origin
 
 OUTPUT PARAMETERS:
     DF2 -   copy
@@ -16431,7 +16431,7 @@ double lravgrelerror(linearmodel* lm,
 Copying of LinearModel strucure
 
 INPUT PARAMETERS:
-    LM1 -   original
+    LM1 -   origin
 
 OUTPUT PARAMETERS:
     LM2 -   copy
@@ -16883,11 +16883,11 @@ static void linreg_lrinternal(/* Real    */ ae_matrix* xy,
      *
      * NOTATIONS:
      * A            design matrix
-     * A*x = b      original linear least squares task
+     * A*x = b      origin linear least squares task
      * U*S*V'       SVD of A
      * ai           i-th row of the A
      * bi           i-th element of the b
-     * xf           solution of the original LLS task
+     * xf           solution of the origin LLS task
      *
      * Cross-validation error of i-th element from a sample is
      * calculated using following formula:
@@ -16895,7 +16895,7 @@ static void linreg_lrinternal(/* Real    */ ae_matrix* xy,
      *     ERRi = ai*xf - (ai*xf-bi*(ui*ui'))/(1-ui*ui')     (1)
      *
      * This formula can be derived from normal equations of the
-     * original task
+     * origin task
      *
      *     (A'*A)x = A'*b                                    (2)
      *
@@ -18682,7 +18682,7 @@ void mlpcreatec2(ae_int_t nin,
 Copying of neural network
 
 INPUT PARAMETERS:
-    Network1 -   original
+    Network1 -   origin
 
 OUTPUT PARAMETERS:
     Network2 -   copy
@@ -18705,7 +18705,7 @@ void mlpcopy(multilayerperceptron* network1,
 Copying of neural network (second parameter is passed as shared object).
 
 INPUT PARAMETERS:
-    Network1 -   original
+    Network1 -   origin
 
 OUTPUT PARAMETERS:
     Network2 -   copy
@@ -19002,7 +19002,7 @@ void mlpimporttunableparameters(multilayerperceptron* network,
 Serialization of MultiLayerPerceptron strucure
 
 INPUT PARAMETERS:
-    Network -   original
+    Network -   origin
 
 OUTPUT PARAMETERS:
     RA      -   array of real numbers which stores network,
@@ -19724,12 +19724,12 @@ Initialization for preprocessor based on a subsample.
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset; one sample = one row;
+    XY      -   origin dataset; one sample = one row;
                 first NIn columns contain inputs,
                 next NOut columns - desired outputs.
     SetSize -   real size of XY, SetSize>=0;
     Idx     -   subset of SubsetSize elements, array[SubsetSize]:
-                * Idx[I] stores row index in the original dataset which is
+                * Idx[I] stores row index in the origin dataset which is
                   given by XY. Gradient is calculated with respect to rows
                   whose indexes are stored in Idx[].
                 * Idx[]  must store correct indexes; this function  throws
@@ -19902,13 +19902,13 @@ Initialization for preprocessor based on a subsample.
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset, given by sparse matrix;
+    XY      -   origin dataset, given by sparse matrix;
                 one sample = one row;
                 first NIn columns contain inputs,
                 next NOut columns - desired outputs.
     SetSize -   real size of XY, SetSize>=0;
     Idx     -   subset of SubsetSize elements, array[SubsetSize]:
-                * Idx[I] stores row index in the original dataset which is
+                * Idx[I] stores row index in the origin dataset which is
                   given by XY. Gradient is calculated with respect to rows
                   whose indexes are stored in Idx[].
                 * Idx[]  must store correct indexes; this function  throws
@@ -22391,7 +22391,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset in dense format; one sample = one row:
+    XY      -   origin dataset in dense format; one sample = one row:
                 * first NIn columns contain inputs,
                 * for regression problem, next NOut columns store
                   desired outputs.
@@ -22515,7 +22515,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset in sparse format; one sample = one row:
+    XY      -   origin dataset in sparse format; one sample = one row:
                 * MATRIX MUST BE STORED IN CRS FORMAT
                 * first NIn columns contain inputs.
                 * for regression problem, next NOut columns store
@@ -22640,7 +22640,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset in dense format; one sample = one row:
+    XY      -   origin dataset in dense format; one sample = one row:
                 * first NIn columns contain inputs,
                 * for regression problem, next NOut columns store
                   desired outputs.
@@ -22648,7 +22648,7 @@ INPUT PARAMETERS:
                   stores class number.
     SetSize -   real size of XY, SetSize>=0;
     Idx     -   subset of SubsetSize elements, array[SubsetSize]:
-                * Idx[I] stores row index in the original dataset which is
+                * Idx[I] stores row index in the origin dataset which is
                   given by XY. Gradient is calculated with respect to rows
                   whose indexes are stored in Idx[].
                 * Idx[]  must store correct indexes; this function  throws
@@ -22799,7 +22799,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset in sparse format; one sample = one row:
+    XY      -   origin dataset in sparse format; one sample = one row:
                 * MATRIX MUST BE STORED IN CRS FORMAT
                 * first NIn columns contain inputs,
                 * for regression problem, next NOut columns store
@@ -22808,7 +22808,7 @@ INPUT PARAMETERS:
                   stores class number.
     SetSize -   real size of XY, SetSize>=0;
     Idx     -   subset of SubsetSize elements, array[SubsetSize]:
-                * Idx[I] stores row index in the original dataset which is
+                * Idx[I] stores row index in the origin dataset which is
                   given by XY. Gradient is calculated with respect to rows
                   whose indexes are stored in Idx[].
                 * Idx[]  must store correct indexes; this function  throws
@@ -23614,7 +23614,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset; one sample = one row;
+    XY      -   origin dataset; one sample = one row;
                 first NIn columns contain inputs,
                 next NOut columns - desired outputs.
     SetSize -   real size of XY, SetSize>=0;
@@ -23720,7 +23720,7 @@ FOR USERS OF COMMERCIAL EDITION:
 
 INPUT PARAMETERS:
     Network -   network initialized with one of the network creation funcs
-    XY      -   original dataset given by sparse matrix;
+    XY      -   origin dataset given by sparse matrix;
                 one sample = one row;
                 first NIn columns contain inputs,
                 next NOut columns - desired outputs.
@@ -27191,7 +27191,7 @@ void mnlpack(/* Real    */ ae_matrix* a,
 Copying of LogitModel strucure
 
 INPUT PARAMETERS:
-    LM1 -   original
+    LM1 -   origin
 
 OUTPUT PARAMETERS:
     LM2 -   copy
@@ -30099,7 +30099,7 @@ void mlpecreatefromnetwork(multilayerperceptron* network,
 Copying of MLPEnsemble strucure
 
 INPUT PARAMETERS:
-    Ensemble1 -   original
+    Ensemble1 -   origin
 
 OUTPUT PARAMETERS:
     Ensemble2 -   copy

@@ -19,36 +19,41 @@ class PoissonSolver
 {
 public:
     PoissonSolver(
-            const cv::Size & canvas_size,
-            const cv::Mat & laplacian_image,
+            const cv::Size & canvasSize,
+            const cv::Mat & laplacianImage,
             const Region & region,
-            const double scale,
+            double scale,
             const CPoint2d & origin,
-            const std::vector<CPoint2d> & end_points,
             int n_rings,
-            const cv::Mat & convert_to_laplacian_mask);
+            const cv::Mat & edgeNeighborMask);
 
-    const cv::Mat get_result_image() const
+    cv::Mat getResultImage() const
     {
-        return result;
+        return result.clone();
     }
 
 private:
     void regionComputation(int index, const BoundingBox<double> & box, int n_rings);
 
 private:
+    // solver
     static std::vector<std::vector<cv::Vec3f>> coefs;
     static std::vector<std::unique_ptr<QuadTree>> trees;
     static std::vector<std::unique_ptr<AdaptiveEvaluation>> evaluators;
 
-    const double scale;
-    const cv::Mat & laplacian_image;
-    const cv::Mat & convert_to_laplacian_mask;
-    const Region & region;
+    // canvas
     const CPoint2d & origin;
+    const double scale;
 
+    // discretized primitives
+    const cv::Mat & laplacianImage;
+    const cv::Mat & edgeNeighborMask;
+    const Region & region;
+    std::vector<std::vector<CPoint2i>> criticalPoints;
+
+    // renerded final PVG result
     cv::Mat result;
-    std::vector<std::vector<CPoint2i>> critical_points;
+
 };
 
 

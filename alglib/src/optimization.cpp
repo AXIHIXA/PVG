@@ -3508,9 +3508,9 @@ INPUT PARAMETERS:
     A       -   matrix, array[N,N]
     IsUpper -   (optional) storage type:
                 * if True, symmetric matrix  A  is  given  by  its  upper
-                  triangle, and the lower triangle isn’t used
+                  triangle, and the lower triangle isnï¿½t used
                 * if False, symmetric matrix  A  is  given  by  its lower
-                  triangle, and the upper triangle isn’t used
+                  triangle, and the upper triangle isnï¿½t used
                 * if not given, both lower and upper  triangles  must  be
                   filled.
 
@@ -3557,9 +3557,9 @@ INPUT PARAMETERS:
     A       -   matrix, array[N,N]
     IsUpper -   (optional) storage type:
                 * if True, symmetric matrix  A  is  given  by  its  upper
-                  triangle, and the lower triangle isn’t used
+                  triangle, and the lower triangle isnï¿½t used
                 * if False, symmetric matrix  A  is  given  by  its lower
-                  triangle, and the upper triangle isn’t used
+                  triangle, and the upper triangle isnï¿½t used
                 * if not given, both lower and upper  triangles  must  be
                   filled.
 
@@ -3606,9 +3606,9 @@ INPUT PARAMETERS:
     A       -   matrix, array[N,N]
     IsUpper -   (optional) storage type:
                 * if True, symmetric matrix  A  is  given  by  its  upper
-                  triangle, and the lower triangle isn’t used
+                  triangle, and the lower triangle isnï¿½t used
                 * if False, symmetric matrix  A  is  given  by  its lower
-                  triangle, and the upper triangle isn’t used
+                  triangle, and the upper triangle isnï¿½t used
                 * if not given, both lower and upper  triangles  must  be
                   filled.
 
@@ -7280,7 +7280,7 @@ SCALING OF CONSTRAINTS [IMPORTANT]
 AUL optimizer scales   variables   according   to   scale   specified   by
 MinNLCSetScale() function, so it can handle  problems  with  badly  scaled
 variables (as long as we KNOW their scales).   However,  because  function
-being optimized is a mix  of  original  function and  constraint-dependent
+being optimized is a mix  of  origin  function and  constraint-dependent
 penalty  functions, it  is   important  to   rescale  both  variables  AND
 constraints.
 
@@ -10801,7 +10801,7 @@ ae_bool cqmconstrainedoptimum(convexquadraticmodel* s,
         /*
          * Free components of the extrema are calculated in the first NFree elements of TXC.
          *
-         * First, we have to calculate original Newton step, without rank-K perturbations
+         * First, we have to calculate origin Newton step, without rank-K perturbations
          */
         ae_v_moveneg(&s->txc.ptr.p_double[0], 1, &s->tmpg.ptr.p_double[0], 1, ae_v_len(0,nfree-1));
         cqmodels_cqmsolveea(s, &s->txc, &s->tmp0, _state);
@@ -11443,7 +11443,7 @@ static ae_bool cqmodels_cqmrebuild(convexquadraticmodel* s,
          * * we calculate TK0 and TK1
          * * we multiply leading part of TK2 which stores Qf by sqrt(theta)
          *   it is important to perform this step AFTER calculation of TK0 and TK1,
-         *   because we need original (non-modified) Qf to calculate TK0 and TK1.
+         *   because we need origin (non-modified) Qf to calculate TK0 and TK1.
          */
         for(j=0; j<=n-1; j++)
         {
@@ -12505,7 +12505,7 @@ void snnlssolve(snnlssolver* s,
                  *   * solve for BU_new/BL_new, obtain solution dx
                  *   * XU_cur := XU_cur + dx_u
                  *   * XL_cur := XL_cur + dx_l
-                 * * BU_new/BL_new are stored in CB, original right part is
+                 * * BU_new/BL_new are stored in CB, origin right part is
                  *   stored in CBOrg, correction to X is stored in DX, current
                  *   X is stored in CX
                  */
@@ -13896,7 +13896,7 @@ void sascorrection(sactiveset* state,
      *
      *     x_proj = x - S*S*As'*(As*x-b)
      *
-     * where x is original x before projection, S is a scale matrix,
+     * where x is origin x before projection, S is a scale matrix,
      * As is a matrix of equality constraints (active set) which were
      * orthogonalized with respect to inner product given by S (i.e. we
      * have As*S*S'*As'=I), b is a right part of the orthogonalized
@@ -21377,7 +21377,7 @@ INPUT PARAMETERS:
                     * I-th element contains scale of I-th variable,
                     * SC[I]>0
     XOriginC    -   origin term, array[NC]. Can be zero.
-    NC          -   number of variables in the  original  formulation  (no
+    NC          -   number of variables in the  origin  formulation  (no
                     slack variables).
     CLEICC      -   linear equality/inequality constraints. Present version
                     of this function does NOT provide  publicly  available
@@ -22256,7 +22256,7 @@ static double qqpsolver_projectedtargetfunction(qqpbuffers* sstate,
 
 
 /*************************************************************************
-Gradient of "extended" (N>=NMain variables, original + slack ones)  target
+Gradient of "extended" (N>=NMain variables, origin + slack ones)  target
 function:
 
     f(x) = 0.5*x'*A*x + b'*x + penaltyfactor*0.5*(C*x-b)'*(C*x-b)
@@ -23493,7 +23493,7 @@ INPUT PARAMETERS:
                     * I-th element contains scale of I-th variable,
                     * SC[I]>0
     XOriginC    -   origin term, array[NC]. Can be zero.
-    NC          -   number of variables in the  original  formulation  (no
+    NC          -   number of variables in the  origin  formulation  (no
                     slack variables).
     CLEICC      -   linear equality/inequality constraints. Present version
                     of this function does NOT provide  publicly  available
@@ -24017,7 +24017,7 @@ INPUT PARAMETERS:
                     * I-th element contains scale of I-th variable,
                     * SC[I]>0
     XOriginC    -   origin term, array[NC]. Can be zero.
-    NC          -   number of variables in the  original  formulation  (no
+    NC          -   number of variables in the  origin  formulation  (no
                     slack variables).
     CLEICC      -   linear equality/inequality constraints. Present version
                     of this function does NOT provide  publicly  available
@@ -25003,9 +25003,9 @@ INPUT PARAMETERS:
     A       -   matrix, array[N,N]
     IsUpper -   (optional) storage type:
                 * if True, symmetric matrix  A  is  given  by  its  upper
-                  triangle, and the lower triangle isn’t used
+                  triangle, and the lower triangle isnï¿½t used
                 * if False, symmetric matrix  A  is  given  by  its lower
-                  triangle, and the upper triangle isn’t used
+                  triangle, and the upper triangle isnï¿½t used
                 * if not given, both lower and upper  triangles  must  be
                   filled.
 
@@ -25047,9 +25047,9 @@ INPUT PARAMETERS:
     A       -   matrix, array[N,N]
     IsUpper -   (optional) storage type:
                 * if True, symmetric matrix  A  is  given  by  its  upper
-                  triangle, and the lower triangle isn’t used
+                  triangle, and the lower triangle isnï¿½t used
                 * if False, symmetric matrix  A  is  given  by  its lower
-                  triangle, and the upper triangle isn’t used
+                  triangle, and the upper triangle isnï¿½t used
                 * if not given, both lower and upper  triangles  must  be
                   filled.
 
@@ -30806,7 +30806,7 @@ SCALING OF CONSTRAINTS [IMPORTANT]
 AUL optimizer scales   variables   according   to   scale   specified   by
 MinNLCSetScale() function, so it can handle  problems  with  badly  scaled
 variables (as long as we KNOW their scales).   However,  because  function
-being optimized is a mix  of  original  function and  constraint-dependent
+being optimized is a mix  of  origin  function and  constraint-dependent
 penalty  functions, it  is   important  to   rescale  both  variables  AND
 constraints.
 

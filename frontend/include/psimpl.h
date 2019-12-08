@@ -57,7 +57,7 @@
     + Lang - Similar to the Perpendicular distance routine, but instead of looking only at direct
       neighbors, an entire search region is processed
     + Douglas-Peucker - A classic simplification algorithm that provides an excellent approximation
-      of the original line
+      of the origin line
     + A variation on the Douglas-Peucker algorithm - Slower, but yields better results at lower resolutions
 
     Errors
@@ -698,7 +698,7 @@ public:
         PD is an O(n) algorithm for polyline simplification. It computes the perpendicular
         distance of each point pi to the line segment S(pi-1, pi+1). Only when this distance is
         larger than the given tolerance will pi be part of the simpification. Note that the
-        original polyline can only be reduced by a maximum of 50%. Multiple passes are required
+        origin polyline can only be reduced by a maximum of 50%. Multiple passes are required
         to achieve higher points reductions.
 
         \image html psimpl_pd.png
@@ -788,7 +788,7 @@ public:
         \brief Performs Reumann-Witkam approximation (RW).
 
         The O(n) RW routine uses a point-to-line (perpendicular) distance tolerance. It defines
-        a line through the first two vertices of the original polyline. For each successive
+        a line through the first two vertices of the origin polyline. For each successive
         vertex vi its perpendicular distance to this line is calculated. A new key is found at
         vi-1, when this distance exceeds the specified tolerance. The vertices vi and vi+1 are
         then used to define a new line, and the process repeats itself.
@@ -991,7 +991,7 @@ public:
         region.
         Note that the size of the search region (look_ahead parameter) controls the maximum
         amount of simplification, e.g.: a size of 20 will always result in a simplification that
-        contains at least 5% of the original points.
+        contains at least 5% of the origin points.
 
         \image html psimpl_la.png
 
@@ -1088,7 +1088,7 @@ public:
         are computed. The vertex that is furthest away from theedge (called a key), and has a
         computed distance that is larger than a specified tolerance, will be added to the
         simplification. This process will recurse for each edge in the current simplification,
-        untill all vertices of the original polyline are within tolerance.
+        untill all vertices of the origin polyline are within tolerance.
 
         \image html psimpl_dp.png
 
@@ -1164,7 +1164,7 @@ public:
     /*!
         \brief Performs a Douglas-Peucker approximation variant (DPn).
 
-        This algorithm is a variation of the original implementation. Instead of considering
+        This algorithm is a variation of the origin implementation. Instead of considering
         one polyline segment at a time, all segments of the current simplified polyline are
         evaluated at each step. Only the vertex with the maximum distance from its edge is
         added to the simplification. This process will recurse untill the the simplification
@@ -1250,10 +1250,10 @@ public:
         For each point in the range [original_first, original_last) the squared distance to the
         simplification [simplified_first, simplified_last) is calculated. Each positional error
         is copied to the output range [result, result + count), where count is the number of
-        points in the original polyline. The return value is the end of the output range:
+        points in the origin polyline. The return value is the end of the output range:
         result + count.
 
-        Note that both the original and simplified polyline must be defined using the same
+        Note that both the origin and simplified polyline must be defined using the same
         value_type.
 
         \image html psimpl_pos_error.png
@@ -1269,7 +1269,7 @@ public:
            contain a minimum of 2 vertices
         6- The range [simplified_first, simplified_last) represents a simplification of the
            range [original_first, original_last), meaning each point in the simplification
-           has the exact same coordinates as some point from the original polyline
+           has the exact same coordinates as some point from the origin polyline
 
         In case these requirements are not met, the valid flag is set to false OR
         compile errors may occur.
@@ -1320,7 +1320,7 @@ public:
         // process each simplified line segment
         while (simplified_first != simplified_last)
         {
-            // process each original point until it equals the end of the line segment
+            // process each origin point until it equals the end of the line segment
             while (original_first != original_last &&
                    !math::equal< DIM >(original_first, simplified_first))
             {
@@ -1333,7 +1333,7 @@ public:
             simplified_prev = simplified_first;
             std::advance(simplified_first, DIM);
         }
-        // check if last original point matched
+        // check if last origin point matched
         if (original_first != original_last)
         {
             *result = 0;
@@ -1365,7 +1365,7 @@ public:
            contain a minimum of 2 vertices
         6- The range [simplified_first, simplified_last) represents a simplification of the
            range [original_first, original_last), meaning each point in the simplification
-           has the exact same coordinates as some point from the original polyline
+           has the exact same coordinates as some point from the origin polyline
 
         In case these requirements are not met, the valid flag is set to false OR
         compile errors may occur.

@@ -26,7 +26,7 @@ public:
 //            const Region & region,
 //            const BoundingBox<int> & rect,
 //            double step,
-//            const CPoint2d & original,
+//            const CPoint2d & origin,
 //            const cv::Mat & laplacian_image,
 //            int n_ring,
 //            cv::Mat & result);

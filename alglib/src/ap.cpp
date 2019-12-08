@@ -8463,7 +8463,7 @@ void _ialglib_rmv_sse2(ae_int_t m, ae_int_t n, const double *a, const double *x,
         {
             /*
              * this code is a shuffle of simultaneous dot product.
-             * see below for commented unshuffled original version.
+             * see below for commented unshuffled origin version.
              */
             vx  = _mm_load_pd(pb);
             va0 = _mm_load_pd(pa0);

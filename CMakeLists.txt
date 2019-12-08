@@ -150,8 +150,8 @@ set(ALL_LIBS
         )
 
 add_definitions(-DST_COLOR -DST_VERBOSE)
-add_definitions(-DoutFZ)
-add_definitions(-DQUADTREE_VORONOI_OUTPUT)
+#add_definitions(-DoutFZ)
+#add_definitions(-DQUADTREE_VORONOI_OUTPUT)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ALL_INCLUDE_DIRS})

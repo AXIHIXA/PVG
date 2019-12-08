@@ -184,7 +184,7 @@ AdaptiveEvaluation::~AdaptiveEvaluation()
 //	}
 //}
 
-//vector<CPoint2i> AdaptiveEvaluation::cuda_evaluation(const Region& region, const BoundingBox<int>& rect, double step, const CPoint2d& original, const Mat& laplacian_image, int n_rings, Mat& result)
+//vector<CPoint2i> AdaptiveEvaluation::cuda_evaluation(const Region& region, const BoundingBox<int>& rect, double step, const CPoint2d& origin, const Mat& laplacian_image, int n_rings, Mat& result)
 //{
 //	if (n_rings != default_rings)
 //	{
@@ -222,7 +222,7 @@ AdaptiveEvaluation::~AdaptiveEvaluation()
 //	{
 //		for (int j = 0; j < rect.width; ++j)
 //		{
-//			CPoint2f p((float)(original[0] + (i + 0.5)*step), (float)(original[1] + (j + 0.5)*step));
+//			CPoint2f p((float)(origin[0] + (i + 0.5)*step), (float)(origin[1] + (j + 0.5)*step));
 //			CPoint2f pt(p);
 //
 //			if (step != 1.0 && region.is_critical(p))

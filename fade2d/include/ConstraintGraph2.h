@@ -95,7 +95,7 @@ public:
 * Use this method to retrieve the vertices of the present ConstraintGraph2.
 * If it forms ONE closed polygon, then the vertices are ordered and oriented
 * in counterclockwise direction, e.g. (a,b,b,c,c,d,d,a). Otherwise they are
-* returned in original order. Be aware that the order is only maintained
+* returned in origin order. Be aware that the order is only maintained
 * if the ConstraintGraph2 has been created with Fade_2D::createConstraint(..,..,\p bOrientedSegments=true).
 *
 * @note The segments of the present ConstraintGraph2 may have been splitted.
@@ -155,9 +155,9 @@ public:
 	void show(Visualizer2* pVis,const Color& color);
 
 
-/** \brief Get the original ConstraintSegment2 objects
+/** \brief Get the origin ConstraintSegment2 objects
 *
-* Get the original, ConstraintSegment2 objects. They are not subdivided
+* Get the origin, ConstraintSegment2 objects. They are not subdivided
 * but may be dead and have child segments (which may also be dead and
 * have child segments...)
 *
@@ -167,7 +167,7 @@ public:
 
 /** \brief Get child ConstraintSegment2 objects
 *
-* Returns the current constraint segments, i.e., the original ones or,
+* Returns the current constraint segments, i.e., the origin ones or,
 * if splitted, their child segments.
 *
 */

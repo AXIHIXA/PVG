@@ -7708,7 +7708,7 @@ Output parameters:
     Tau -   scalar value Tau.
 
 This subroutine is the modification of CLARFG subroutines  from the LAPACK
-library. It has similar functionality except for the fact that it  doesn’t
+library. It has similar functionality except for the fact that it  doesnï¿½t
 handle errors when intermediate results cause an overflow.
 
   -- LAPACK auxiliary routine (version 3.0) --
@@ -11371,7 +11371,7 @@ Parameters:
     Alpha   -   alpha
     Beta    -   beta
     LnMax   -   precomputed Ln(MaxRealNumber)
-    BNorm   -   inf-norm of b (right part of original system)
+    BNorm   -   inf-norm of b (right part of origin system)
     MaxGrowth-  maximum growth of norm(x) relative to norm(b)
     XNorm   -   inf-norm of other components of X (which are already processed)
                 it is updated by CBasicSolveAndUpdate.
@@ -11967,7 +11967,7 @@ static void xblas_xsum(/* Real    */ ae_vector* w,
     /*
      * 1. find S such that 0.5<=S*MX<1
      * 2. multiply W by S, so task is normalized in some sense
-     * 3. S:=1/S so we can obtain original vector multiplying by S
+     * 3. S:=1/S so we can obtain origin vector multiplying by S
      */
     k = ae_round(ae_log(mx, _state)/ln2, _state);
     s = xblas_xfastpow((double)(2), -k, _state);
@@ -15537,7 +15537,7 @@ them to array PrecR[] at specified offset. It  is  responsibility  of  the
 caller to make sure that PrecR[] is large enough.
 
 INPUT PARAMETERS:
-    N           -   original size of the transform
+    N           -   origin size of the transform
     M           -   size of the "padded" Bluestein's transform
     PrecR       -   preallocated array
     Offs        -   offset
@@ -15612,7 +15612,7 @@ INPUT PARAMETERS:
                     This is an offset within large PlanLength-subarray of
                     the chunk to process.
     OperandsCnt -   number of repeated operands (length N each)
-    N           -   original data length (measured in complex numbers)
+    N           -   origin data length (measured in complex numbers)
     M           -   padded data length (measured in complex numbers)
     PrecOffs    -   offset of the precomputed data for the plan
     SubPlan     -   position of the length-M FFT subplan which is used by
@@ -15736,7 +15736,7 @@ to array PrecR[] at specified offset. It  is  responsibility of the caller
 to make sure that PrecR[] is large enough.
 
 INPUT PARAMETERS:
-    N           -   original size of the transform (before reduction to N-1)
+    N           -   origin size of the transform (before reduction to N-1)
     RQ          -   primitive root modulo N
     RIQ         -   inverse of primitive root modulo N
     PrecR       -   preallocated array
@@ -15797,7 +15797,7 @@ INPUT PARAMETERS:
                     This is an offset within large PlanLength-subarray of
                     the chunk to process.
     OperandsCnt -   number of repeated operands (length N each)
-    N           -   original data length (measured in complex numbers)
+    N           -   origin data length (measured in complex numbers)
     SubPlan     -   position of the (N-1)-point FFT subplan which is used
                     by transformation
     RQ          -   primitive root modulo N

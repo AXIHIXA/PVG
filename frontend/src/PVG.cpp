@@ -26,7 +26,6 @@ PVG::PVG(const QString & filename, double sf, const QPoint & w)
     // open & solve
     open(filename, scaleFactor);
     QPair<Region *, cv::Mat> res = discretization();
-    //cv::imwrite("resultImg/lapimg.bmp", res.second);
     evaluation(res.first, res.second, 4);
 }
 
@@ -113,12 +112,6 @@ void PVG::open(const QString & filename, double scale)
     byteArray = qUncompress(byteArray);
     tinyxml2::XMLDocument xmlDoc;
     xmlDoc.Parse(byteArray.toStdString().c_str());
-
-#ifdef SAVE_DECOMPRESSED_PVG_XML
-    QString xmlFilename = filename;
-    xmlFilename.replace(".pvg", ".xml");
-    xmlDoc.SaveFile(xmlFilename.toStdString().c_str());
-#endif
 
     tinyxml2::XMLNode * rootNode = xmlDoc.FirstChild();
 
@@ -319,27 +312,30 @@ void PVG::zoomIn(double scale, const QPoint & cur_w00)
     lap_edges_scaled = lap_edges;
     lap_regions_scaled = lap_regions;
 
-    for (int i = 0; i < m_strokes_scaled.size(); i++)
+    if (scaleFactor != 1.0)
     {
-        for (int j = 0; j < m_strokes_scaled[i].s_points.size(); j++)
+        for (int i = 0; i < m_strokes_scaled.size(); i++)
         {
-            m_strokes_scaled[i].s_points[j] *= scale;
+            for (int j = 0; j < m_strokes_scaled[i].s_points.size(); j++)
+            {
+                m_strokes_scaled[i].s_points[j] *= scale;
+            }
         }
-    }
 
-    for (int i = 0; i < lap_edges_scaled.size(); i++)
-    {
-        for (int j = 0; j < lap_edges_scaled[i].s_points.size(); j++)
+        for (int i = 0; i < lap_edges_scaled.size(); i++)
         {
-            lap_edges_scaled[i].s_points[j] *= scale;
+            for (int j = 0; j < lap_edges_scaled[i].s_points.size(); j++)
+            {
+                lap_edges_scaled[i].s_points[j] *= scale;
+            }
         }
-    }
 
-    for (int i = 0; i < lap_regions_scaled.size(); i++)
-    {
-        for (int j = 0; j < lap_regions_scaled[i].s_points.size(); j++)
+        for (int i = 0; i < lap_regions_scaled.size(); i++)
         {
-            lap_regions_scaled[i].s_points[j] *= scale;
+            for (int j = 0; j < lap_regions_scaled[i].s_points.size(); j++)
+            {
+                lap_regions_scaled[i].s_points[j] *= scale;
+            }
         }
     }
 
@@ -351,8 +347,12 @@ void PVG::zoomIn(double scale, const QPoint & cur_w00)
 
 #ifdef QUADTREE_VORONOI_OUTPUT
 template <class T>
-static std::vector<std::vector<CPoint2i> >
-flood_fill(const cv::Mat & image, const T & zero, int n_neighbors, int region_id, const Region & region);
+static std::vector<std::vector<CPoint2i>> flood_fill(
+        const cv::Mat & image,
+        const T & zero,
+        int n_neighbors,
+        int region_id,
+        const Region & region);
 #endif
 
 QPair<Region *, cv::Mat> PVG::discretization()
@@ -378,7 +378,7 @@ QPair<Region *, cv::Mat> PVG::discretization()
     cv::Mat the_laplacian_image = cv::Mat::zeros(size.height(), size.width(), CV_32FC3);
 #endif
 
-    zoomIn(1.0, QPoint(0, 0));
+    zoomIn(scaleFactor, w00);
 
     cv::Mat region_mask;
     cv::Mat side_mask;
@@ -689,134 +689,32 @@ QPair<Region *, cv::Mat> PVG::discretization()
     return QPair<Region *, cv::Mat>(region.get(), laplacian_image);
 }
 
-void PVG::evaluation(Region * region, const cv::Mat laplacian_image, int n_rings)
+void PVG::evaluation(Region * region, const cv::Mat & laplacian_image, int n_rings)
 {
-    ///
-    /// process enlarged image
-    ///
+    assert(scaleFactor == 1.0);
 
-    std::vector<CPoint2d> end_points;
+    cv::Mat edgeNeighborMask = cv::Mat();
 
-    if (scaleFactor != 1.0)
-    {
-        region->labels_generation();
-
-        BoundingBox<double> ROI;
-        ROI.row = w00.y() / scaleFactor;
-        ROI.col = w00.x() / scaleFactor;
-        ROI.width = size.width() / scaleFactor;
-        ROI.height = size.height() / scaleFactor;
-
-        zoomIn(scaleFactor, w00);
-
-        if (regions[0]->w() == size.width() && regions[0]->h() == size.height())
-        {
-            for (size_t i = 0; i < regions.size(); ++i)
-            {
-                regions[i]->set_scale(scaleFactor);
-                regions[i]->set_w00(cv::Vec2i(w00.y(), w00.x()));
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < regions.size(); ++i)
-            {
-                regions[i].reset(
-                        new CRegionFZ(
-                                size.height(),
-                                size.width(),
-                                QVector<SQ_Stroke>(),
-                                scaleFactor,
-                                cv::Vec2i(w00.y(), w00.x())));
-            }
-        }
-
-        std::vector<std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f> > > >
-                points_vector(lap_edges_scaled.size());
-
-        std::vector<std::thread> threads(max_threads);
-
-        for (int i = 0; i < max_threads; i++)
-        {
-            threads[i] = std::thread(
-                    [&](int g)
-                    {
-                         for (int r = g; r < lap_edges_scaled.size(); r += max_threads)
-                         {
-                             points_vector[r] = regions[g]->lapEdge(r, lap_edges_scaled[r]);
-                         }
-                    },
-                    i);
-        }
-
-        for (auto i = 0; i < threads.size(); ++i)
-        {
-            threads[i].join();
-        }
-
-        CRegionFZ scaled_reg(
-                size.height(),
-                size.width(),
-                m_strokes_scaled,
-                scaleFactor,
-                cv::Vec2i(w00.y(), w00.x()));
-
-        scaled_reg.boundary(false);
-
-        region->set_enlarged_mask(scaled_reg.get_sideMask(), scaleFactor, ROI, points_vector);
-
-        for (int i = 0; i < m_strokes.size(); ++i)
-        {
-            if (m_strokes[i].s_mode == SQ_Stroke::OPEN)
-            {
-                QPointF p = m_strokes[i].s_points.front();
-                end_points.push_back(CPoint2d(p.y(), p.x()));
-                p = m_strokes[i].s_points.back();
-                end_points.push_back(CPoint2d(p.y(), p.x()));
-            }
-        }
-
-        for (int i = 0; i < lap_edges.size(); ++i)
-        {
-            if (lap_edges[i].s_mode == SQ_Stroke::OPEN)
-            {
-                QPointF p = lap_edges[i].s_points.front();
-                end_points.push_back(CPoint2d(p.y(), p.x()));
-                p = lap_edges[i].s_points.back();
-                end_points.push_back(CPoint2d(p.y(), p.x()));
-            }
-        }
-
-        std::vector<SQ_Stroke> strokes(m_strokes_scaled.begin(), m_strokes_scaled.end());
-        strokes.insert(strokes.end(), lap_edges_scaled.begin(), lap_edges_scaled.end());
-        for (size_t i = 0; i < strokes.size(); ++i)
-        {
-            strokes[i].translation(QPointF(-w00.x(), -w00.y()));
-        }
-
-        region->add_SQ_strokes(strokes);
-    }
-
-    cv::Mat convert_to_laplacian_mask = cv::Mat();
-
-    // Poisson solver
     PoissonSolver poissonSolver(
         cv::Size(size.width(), size.height()),
         laplacian_image,
         *region,
         scaleFactor,
         CPoint2d(w00.y() / scaleFactor, w00.x() / scaleFactor),
-        end_points,
         n_rings,
-        convert_to_laplacian_mask);
+        edgeNeighborMask);
 
-    result = poissonSolver.get_result_image();
+    result = poissonSolver.getResultImage();
 }
 
 #ifdef QUADTREE_VORONOI_OUTPUT
 template <class T>
-static std::vector<std::vector<CPoint2i> >
-flood_fill(const cv::Mat & image, const T & zero, int n_neighbors, int region_id, const Region & region)
+static std::vector<std::vector<CPoint2i>> flood_fill(
+        const cv::Mat & image,
+        const T & zero,
+        int n_neighbors,
+        int region_id,
+        const Region & region)
 {
     cv::Mat mask = cv::Mat::zeros(image.rows, image.cols, CV_8UC1);
     std::vector<std::vector<CPoint2i> > region_points;

@@ -3,7 +3,6 @@
 #include "quadtree.h"
 #include "region.h"
 #include <Eigen/Sparse>
-#include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
 
@@ -17,23 +16,29 @@ QuadTree::QuadTree(
         const cv::Mat & laplacian,
         int step,
         bool split_edge_neighbor,
-        const Mat edge_neighbor_mask) : region(region), region_id(region_id), step(step)
+        const Mat edge_neighbor_mask
+        ) :
+        region(region),
+        region_id(region_id),
+        step(step)
 {
     // tree initialization
     const BoundingBox<int> & box = region.get_boundingbox(region_id);
     height = (int) ceil((box.height + 4) / (double) step);
     width = (int) ceil((box.width + 4) / (double) step);
 
-    original[0] = box.row - 2;
-    original[1] = box.col - 2;
-    quadtree.set_head(TreeNodeD(original[0], original[1], -1));
+    origin[0] = box.row - 2;
+    origin[1] = box.col - 2;
+    quadtree.set_head(TreeNodeD(origin[0], origin[1], -1));
 
     // tree construction
     for (int i = 0; i < height; ++i)
     {
         for (int j = 0; j < width; ++j)
         {
-            quadtree.append_child(quadtree.begin(), TreeNodeD(original[0] + i * step, original[1] + j * step, step));
+            quadtree.append_child(
+                    quadtree.begin(),
+                    TreeNodeD(origin[0] + i * step, origin[1] + j * step, step));
         }
     }
 
@@ -211,10 +216,14 @@ QuadTree::QuadTree(
     }
 }
 
-bool
-QuadTree::to_split(const TreeNodeD & node, const Mat & mask, const Mat & pseudo_laplacian, const CPoint2i & mask_ori)
+bool QuadTree::to_split(
+        const TreeNodeD & node,
+        const Mat & mask,
+        const Mat & pseudo_laplacian,
+        const CPoint2i & mask_ori)
 {
     Vec3f stand(-2e10, -2e10, -2e10);
+
     for (int i = 0; i < node.width; ++i)
     {
         for (int j = 0; j < node.width; ++j)
@@ -228,6 +237,7 @@ QuadTree::to_split(const TreeNodeD & node, const Mat & mask, const Mat & pseudo_
                     if (stand == Vec3f(-2e10, -2e10, -2e10))
                     {
                         stand = pseudo_laplacian.at<Vec3f>(p[0], p[1]);
+
                         if (stand == Vec3f(-1e10, -1e10, -1e10))
                         {
                             return true;
@@ -241,13 +251,15 @@ QuadTree::to_split(const TreeNodeD & node, const Mat & mask, const Mat & pseudo_
             }
         }
     }
+
     return false;
 }
 
 int QuadTree::search(const CPoint2f & p) const
 {
-    int ind_row = (int) floor((p[0] - original[0]) / step);
-    int ind_col = (int) floor((p[1] - original[1]) / step);
+    int ind_row = (int) floor((p[0] - origin[0]) / step);
+    int ind_col = (int) floor((p[1] - origin[1]) / step);
+
     if (ind_row < 0 || ind_row >= height || ind_col < 0 || ind_col >= width)
     {
         return -1;
@@ -255,6 +267,7 @@ int QuadTree::search(const CPoint2f & p) const
 
     int index = ind_row * width + ind_col;
     tree<TreeNodeD>::sibling_iterator it = iterators[index];
+
     while (quadtree.begin(it) != quadtree.end(it))
     {
         int ind_row = (int) floor((p[0] - it->row) / (it->width / 2));
@@ -262,6 +275,7 @@ int QuadTree::search(const CPoint2f & p) const
         int index = ind_row * 2 + ind_col;
         it = quadtree.child(it, index);
     }
+
     return it->index;
 }
 
@@ -271,11 +285,13 @@ void QuadTree::insert(std::vector<int> & neighbors, int row, int col, const CPoi
     {
         int index = row * width + col;
         tree<TreeNodeD>::leaf_iterator it = quadtree.begin_leaf(iterators[index]);
+
         if (it == quadtree.end_leaf(iterators[index]))
         {
             if (iterators[index]->index >= 0 && iterators[index]->index < pixel_node_count)
             {
                 const CPoint2d & p = iterators[index]->center();
+
                 if (max(abs(p[0] - pt[0]), abs(p[1] - pt[1])) < radius)
                 {
                     neighbors.push_back(iterators[index]->index);
@@ -289,11 +305,13 @@ void QuadTree::insert(std::vector<int> & neighbors, int row, int col, const CPoi
                 if (it->index >= 0 && it->index < pixel_node_count)
                 {
                     const CPoint2d & p = it->center();
+
                     if (max(abs(p[0] - pt[0]), abs(p[1] - pt[1])) < radius)
                     {
                         neighbors.push_back(it->index);
                     }
                 }
+
                 ++it;
             }
         }
@@ -302,13 +320,14 @@ void QuadTree::insert(std::vector<int> & neighbors, int row, int col, const CPoi
 
 void QuadTree::get_neighbor_nodes(const CPoint2d & p, vector<int> & neighbors, int n_rings, double radius) const
 {
-    int ind_row = int((p[0] - original[0]) / step);
-    int ind_col = int((p[1] - original[1]) / step);
+    int ind_row = int((p[0] - origin[0]) / step);
+    int ind_col = int((p[1] - origin[1]) / step);
 
     const CPoint2d & pt = iterators[ind_row * width + ind_col]->center();
 
     neighbors.clear();
     neighbors.reserve(400);
+
     for (int r = 0; r <= n_rings; ++r)
     {
         for (int i = -r; i < r; ++i)
@@ -317,18 +336,21 @@ void QuadTree::get_neighbor_nodes(const CPoint2d & p, vector<int> & neighbors, i
             int col = ind_col + i;
             insert(neighbors, row, col, pt, radius);
         }
+
         for (int i = -r; i < r; ++i)
         {
             int row = ind_row - r;
             int col = ind_col + i;
             insert(neighbors, row, col, pt, radius);
         }
+
         for (int i = -r; i <= r; ++i)
         {
             int row = ind_row + i;
             int col = ind_col + r;
             insert(neighbors, row, col, pt, radius);
         }
+
         for (int i = -r + 1; i < r; ++i)
         {
             int row = ind_row + i;
@@ -338,9 +360,9 @@ void QuadTree::get_neighbor_nodes(const CPoint2d & p, vector<int> & neighbors, i
     }
 }
 
-inline int
-find(const vector<tuple<const GEOM_FADE2D::Point2 *, const GEOM_FADE2D::Point2 *, const GEOM_FADE2D::Point2 *>> & v,
-     const GEOM_FADE2D::Point2 * ptr)
+inline int find(
+        const vector<tuple<const GEOM_FADE2D::Point2 *, const GEOM_FADE2D::Point2 *, const GEOM_FADE2D::Point2 *>> & v,
+        const GEOM_FADE2D::Point2 * ptr)
 {
     for (size_t i = 0; i < v.size(); ++i)
     {
@@ -349,6 +371,7 @@ find(const vector<tuple<const GEOM_FADE2D::Point2 *, const GEOM_FADE2D::Point2 *
             return int(i);
         }
     }
+
     return -1;
 }
 
@@ -371,6 +394,7 @@ void QuadTree::construct_laplacian()
         }
         ++ite;
     }
+
     GEOM_FADE2D::Fade_2D del_tri(static_cast<unsigned int>(points.size()));
     del_tri.insert(points);
 
@@ -378,29 +402,34 @@ void QuadTree::construct_laplacian()
     del_tri.getTrianglePointers(all_delaunay_triangles);
 
     vector<GEOM_FADE2D::Point2> all_voronoi_knots(all_delaunay_triangles.size());
+
     for (size_t i = 0; i < all_delaunay_triangles.size(); ++i)
     {
         all_voronoi_knots[i] = all_delaunay_triangles[i]->getDual().first;
     }
 
-    vector<vector<tuple<const GEOM_FADE2D::Point2 *, const GEOM_FADE2D::Point2 *, const GEOM_FADE2D::Point2 *>>> adjacent_list(
-            pixel_node_count);
+    vector<vector<tuple<const GEOM_FADE2D::Point2 *, const GEOM_FADE2D::Point2 *, const GEOM_FADE2D::Point2 *>>>
+            adjacent_list(pixel_node_count);
 
     for (size_t i = 0; i < all_delaunay_triangles.size(); ++i)
     {
         GEOM_FADE2D::Point2 * pt0 = all_delaunay_triangles[i]->getCorner(0);
         GEOM_FADE2D::Point2 * pt1 = all_delaunay_triangles[i]->getCorner(1);
         GEOM_FADE2D::Point2 * pt2 = all_delaunay_triangles[i]->getCorner(2);
+
         if (pt0->getCustomIndex() < pt1->getCustomIndex() && pt0->getCustomIndex() < pixel_node_count)
         {
             GEOM_FADE2D::Triangle2 * tri = del_tri.getAdjacentTriangle(pt1, pt0);
+
             if (tri != NULL)
             {
                 GEOM_FADE2D::Point2 * v1 = &all_voronoi_knots[i];
                 GEOM_FADE2D::Point2 * v2 = &all_voronoi_knots[tri - all_delaunay_triangles[0]];
+
                 if (*v1 != *v2)
                 {
                     adjacent_list[pt0->getCustomIndex()].push_back(make_tuple(pt1, v1, v2));
+
                     if (pt1->getCustomIndex() < pixel_node_count)
                     {
                         adjacent_list[pt1->getCustomIndex()].push_back(make_tuple(pt0, v1, v2));
@@ -408,17 +437,21 @@ void QuadTree::construct_laplacian()
                 }
             }
         }
+
         if (pt1->getCustomIndex() < pt2->getCustomIndex() && pt1->getCustomIndex() < pixel_node_count)
         {
             GEOM_FADE2D::Triangle2 * tri = del_tri.getAdjacentTriangle(pt2, pt1);
+
             if (tri != NULL)
             {
                 GEOM_FADE2D::Point2 * v1 = &all_voronoi_knots[i];
                 int n = tri - all_delaunay_triangles[0];
                 GEOM_FADE2D::Point2 * v2 = &all_voronoi_knots[tri - all_delaunay_triangles[0]];
+
                 if (*v1 != *v2)
                 {
                     adjacent_list[pt1->getCustomIndex()].push_back(make_tuple(pt2, v1, v2));
+
                     if (pt2->getCustomIndex() < pixel_node_count)
                     {
                         adjacent_list[pt2->getCustomIndex()].push_back(make_tuple(pt1, v1, v2));
@@ -426,16 +459,20 @@ void QuadTree::construct_laplacian()
                 }
             }
         }
+
         if (pt2->getCustomIndex() < pt0->getCustomIndex() && pt2->getCustomIndex() < pixel_node_count)
         {
             GEOM_FADE2D::Triangle2 * tri = del_tri.getAdjacentTriangle(pt0, pt2);
+
             if (tri != NULL)
             {
                 GEOM_FADE2D::Point2 * v1 = &all_voronoi_knots[i];
                 GEOM_FADE2D::Point2 * v2 = &all_voronoi_knots[tri - all_delaunay_triangles[0]];
+
                 if (*v1 != *v2)
                 {
                     adjacent_list[pt2->getCustomIndex()].push_back(make_tuple(pt0, v1, v2));
+
                     if (pt0->getCustomIndex() < pixel_node_count)
                     {
                         adjacent_list[pt0->getCustomIndex()].push_back(make_tuple(pt2, v1, v2));
@@ -448,9 +485,9 @@ void QuadTree::construct_laplacian()
 
     /*****debug for output Voronoi diagram*********/
 #ifdef QUADTREE_VORONOI_OUTPUT
-    if (original[0] > 0)
+    if (origin[0] > 0)
     {
-        CPoint2i ori = original + CPoint2i(1, 1);
+        CPoint2i ori = origin + CPoint2i(1, 1);
         {
             int scale = 30;
             BoundingBox<int> box = region.get_boundingbox(region_id);
@@ -518,7 +555,7 @@ void QuadTree::construct_laplacian()
                     /**************************************/
                     /*CPoint2d p_ = points_list[i]->center();
                     p_ *= scale;
-                    p_ -= scale*original;
+                    p_ -= scale*origin;
                     if (p_[1] > 3260 && p_[1] < 3280 && p_[0] < 4550 && p_[0] >4510)
                     {
                         cout << i << endl;
@@ -620,27 +657,33 @@ void QuadTree::construct_laplacian()
             double d2 = (pt - *get<0>(adjacent_list[i][j])).length();
             d1 /= d2;
 
-            triplet_list_basis.push_back(
-                    Eigen::Triplet<double>(points_list[get<0>(adjacent_list[i][j])->getCustomIndex()]->index, (int) i,
-                                           d1));
+            triplet_list_basis.push_back(Eigen::Triplet<double>(
+                    points_list[get<0>(adjacent_list[i][j])->getCustomIndex()]->index,
+                    (int) i,
+                    d1));
             total_basis += d1;
 
             int r = points_list[get<0>(adjacent_list[i][j])->getCustomIndex()]->index;
+
             if (r < pixel_node_count)
             {
                 total_solver += d1;
+
                 if (r < inner_node_count)
                 {
                     triplet_list_solver.push_back(Eigen::Triplet<double>(r, (int) i, -d1));
                 }
             }
         }
+
         triplet_list_basis.push_back(Eigen::Triplet<double>((int) i, (int) i, -total_basis));
+
         if (i < (size_t) inner_node_count)
         {
             triplet_list_solver.push_back(Eigen::Triplet<double>((int) i, (int) i, total_solver));
         }
     }
+
     laplacian_matrix_basis.resize(all_node_count, pixel_node_count);
     laplacian_matrix_basis.setFromTriplets(triplet_list_basis.begin(), triplet_list_basis.end());
     laplacian_matrix_solver.resize(inner_node_count, pixel_node_count);
@@ -662,6 +705,7 @@ void QuadTree::get_regions(vector<TreeNodeD> & regions) const
     regions.resize(all_node_count);
 
     tree<TreeNodeD>::leaf_iterator ite = quadtree.begin_leaf();
+
     while (quadtree.is_valid(ite))
     {
         if (ite->index >= 0)
@@ -673,23 +717,11 @@ void QuadTree::get_regions(vector<TreeNodeD> & regions) const
     }
 }
 
-bool QuadTree::in_range(const CPoint2f & p) const
-{
-    if (p[0] >= original[0] && p[1] >= original[1] && p[0] < original[0] + step * height &&
-        p[1] < original[1] + step * width)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 void QuadTree::get_level1_nodes(std::vector<TreeNodeD> & nodes) const
 {
     nodes.clear();
     tree<TreeNodeD>::fixed_depth_iterator ite = quadtree.begin_fixed(quadtree.begin(), 1);
+
     while (quadtree.is_valid(ite))
     {
         nodes.push_back(*ite);
@@ -701,18 +733,22 @@ bool QuadTree::with_inner_node(const TreeNodeD & node) const
 {
     int n = search_level1(node.center());
     tree<TreeNodeD>::leaf_iterator ite = quadtree.begin_leaf(iterators[n]);
+
     if (ite == quadtree.end_leaf(iterators[n]))
     {
         return node.type == INNER;
     }
+
     while (ite != quadtree.end_leaf(iterators[n]))
     {
         if (ite->type == INNER)
         {
             return true;
         }
+
         ++ite;
     }
+
     return false;
 }
 
@@ -726,15 +762,17 @@ bool QuadTree::with_inner_node() const
         {
             return true;
         }
+
         ++ite;
     }
+
     return false;
 }
 
 int QuadTree::search_level1(const CPoint2f & p) const
 {
-    unsigned int ind_row = static_cast<unsigned int>((p[0] - original[0]) / step);
-    unsigned int ind_col = static_cast<unsigned int>((p[1] - original[1]) / step);
+    unsigned int ind_row = static_cast<unsigned int>((p[0] - origin[0]) / step);
+    unsigned int ind_col = static_cast<unsigned int>((p[1] - origin[1]) / step);
 
     return ind_row * width + ind_col;
 }
@@ -744,6 +782,7 @@ int QuadTree::get_number_of_inner_pixels() const
     vector<TreeNodeD> nodes;
     get_regions(nodes);
     int n = 0;
+
     for (size_t i = 0; i < nodes.size(); ++i)
     {
         if (nodes[i].type == INNER)
@@ -751,5 +790,6 @@ int QuadTree::get_number_of_inner_pixels() const
             n += nodes[i].width * nodes[i].width;
         }
     }
+
     return n;
 }

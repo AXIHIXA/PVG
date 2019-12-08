@@ -3086,9 +3086,9 @@ INPUT PARAMETERS:
     A       -   matrix, array[N,N]
     IsUpper -   (optional) storage type:
                 * if True, symmetric matrix  A  is  given  by  its  upper
-                  triangle, and the lower triangle isn’t used
+                  triangle, and the lower triangle isnï¿½t used
                 * if False, symmetric matrix  A  is  given  by  its lower
-                  triangle, and the upper triangle isn’t used
+                  triangle, and the upper triangle isnï¿½t used
                 * if not given, both lower and upper  triangles  must  be
                   filled.
 
@@ -3118,9 +3118,9 @@ INPUT PARAMETERS:
     A       -   matrix, array[N,N]
     IsUpper -   (optional) storage type:
                 * if True, symmetric matrix  A  is  given  by  its  upper
-                  triangle, and the lower triangle isn’t used
+                  triangle, and the lower triangle isnï¿½t used
                 * if False, symmetric matrix  A  is  given  by  its lower
-                  triangle, and the upper triangle isn’t used
+                  triangle, and the upper triangle isnï¿½t used
                 * if not given, both lower and upper  triangles  must  be
                   filled.
 
@@ -4862,7 +4862,7 @@ SCALING OF CONSTRAINTS [IMPORTANT]
 AUL optimizer scales   variables   according   to   scale   specified   by
 MinNLCSetScale() function, so it can handle  problems  with  badly  scaled
 variables (as long as we KNOW their scales).   However,  because  function
-being optimized is a mix  of  original  function and  constraint-dependent
+being optimized is a mix  of  origin  function and  constraint-dependent
 penalty  functions, it  is   important  to   rescale  both  variables  AND
 constraints.
 

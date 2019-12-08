@@ -484,7 +484,7 @@ Triangle2* getAdjacentTriangle(Point2* p0,Point2* p1) const;
 * @param cis is the Constraint-Insertion-Strategy. Use always
 * CIS_CONSTRAINED_DELAUNAY. This mode inserts the constraint segments
 * \if SECTION_FADE25D
-* at their original level (no projection onto the surface) and
+* at their origin level (no projection onto the surface) and
 * \endif
 * without subdivision unless existing vertices or existing constraint
 * segments are crossed. When subdivision (e.g., to achieve better triangle

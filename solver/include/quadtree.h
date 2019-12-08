@@ -43,7 +43,11 @@ public:
         return all_node_count;
     }
 
-    bool in_range(const CPoint2f & p) const;
+    inline bool in_range(const CPoint2f & p) const
+    {
+        return (origin[0] <= p[0] && p[0] < origin[0] + step * height &&
+                origin[1] <= p[1] && p[1] < origin[1] + step * width);
+    }
 
     int search(const CPoint2f & p) const;
 
@@ -73,17 +77,22 @@ private:
     void insert(std::vector<int> & neighbors, int row, int col, const CPoint2d & pt, double radius) const;
 
 private:
+    const Region & region;
     int region_id;
+    int step;
+
+    CPoint2i origin;
     int height;
     int width;
-    int step;
+
     int pixel_node_count;
     int inner_node_count;
+
     int all_node_count;
-    const Region & region;
-    CPoint2i original;
+
     Eigen::SparseMatrix<double> laplacian_matrix_solver;
     Eigen::SparseMatrix<double> laplacian_matrix_basis;
+
     tree<TreeNodeD> quadtree;
 
     // for search acceleration

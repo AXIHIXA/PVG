@@ -620,7 +620,7 @@ Algorithm features:
 * O(N^2) complexity
 * condition number estimation
 
-No iterative refinement  is provided because exact form of original matrix
+No iterative refinement  is provided because exact form of origin matrix
 is not known to subroutine. Use RMatrixSolve or RMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -652,7 +652,7 @@ Algorithm features:
 * O(M*N^2) complexity
 * condition number estimation
 
-No iterative refinement  is provided because exact form of original matrix
+No iterative refinement  is provided because exact form of origin matrix
 is not known to subroutine. Use RMatrixSolve or RMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -874,7 +874,7 @@ Algorithm features:
 * O(M*N^2) complexity
 * condition number estimation
 
-No iterative refinement  is provided because exact form of original matrix
+No iterative refinement  is provided because exact form of origin matrix
 is not known to subroutine. Use CMatrixSolve or CMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -904,7 +904,7 @@ Algorithm features:
 * O(N^2) complexity
 * condition number estimation
 
-No iterative refinement is provided because exact form of original matrix
+No iterative refinement is provided because exact form of origin matrix
 is not known to subroutine. Use CMatrixSolve or CMatrixMixedSolve  if  you
 need iterative refinement.
 

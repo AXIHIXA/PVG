@@ -385,7 +385,7 @@ Algorithm features:
 * O(N^2) complexity
 * condition number estimation
 
-No iterative refinement  is provided because exact form of original matrix
+No iterative refinement  is provided because exact form of origin matrix
 is not known to subroutine. Use RMatrixSolve or RMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -430,7 +430,7 @@ Algorithm features:
 * O(M*N^2) complexity
 * condition number estimation
 
-No iterative refinement  is provided because exact form of original matrix
+No iterative refinement  is provided because exact form of origin matrix
 is not known to subroutine. Use RMatrixSolve or RMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -749,7 +749,7 @@ Algorithm features:
 * O(M*N^2) complexity
 * condition number estimation
 
-No iterative refinement  is provided because exact form of original matrix
+No iterative refinement  is provided because exact form of origin matrix
 is not known to subroutine. Use CMatrixSolve or CMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -792,7 +792,7 @@ Algorithm features:
 * O(N^2) complexity
 * condition number estimation
 
-No iterative refinement is provided because exact form of original matrix
+No iterative refinement is provided because exact form of origin matrix
 is not known to subroutine. Use CMatrixSolve or CMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -3539,7 +3539,7 @@ Algorithm features:
 * O(N^2) complexity
 * condition number estimation
 
-No iterative refinement  is provided because exact form of original matrix
+No iterative refinement  is provided because exact form of origin matrix
 is not known to subroutine. Use RMatrixSolve or RMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -3603,7 +3603,7 @@ Algorithm features:
 * O(M*N^2) complexity
 * condition number estimation
 
-No iterative refinement  is provided because exact form of original matrix
+No iterative refinement  is provided because exact form of origin matrix
 is not known to subroutine. Use RMatrixSolve or RMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -4088,7 +4088,7 @@ Algorithm features:
 * O(M*N^2) complexity
 * condition number estimation
 
-No iterative refinement  is provided because exact form of original matrix
+No iterative refinement  is provided because exact form of origin matrix
 is not known to subroutine. Use CMatrixSolve or CMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -4171,7 +4171,7 @@ Algorithm features:
 * O(N^2) complexity
 * condition number estimation
 
-No iterative refinement is provided because exact form of original matrix
+No iterative refinement is provided because exact form of origin matrix
 is not known to subroutine. Use CMatrixSolve or CMatrixMixedSolve  if  you
 need iterative refinement.
 
@@ -6976,7 +6976,7 @@ lbl_13:
      * "LSQR - an algorithm for sparse linear equations and sparse least 
      * squares" by C.Paige and M.Saunders with one small addition - we
      * explicitly extend system matrix by additional N lines in order 
-     * to handle non-zero lambda, i.e. original A is replaced by
+     * to handle non-zero lambda, i.e. origin A is replaced by
      *         [ A        ]
      * A_mod = [          ]
      *         [ lambda*I ].

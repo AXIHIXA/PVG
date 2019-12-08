@@ -343,7 +343,7 @@ class tree {
 		/// Move 'source' node (plus its children) to become the node at 'target' (erasing the node at 'target').
 		template<typename iter> iter move_ontop(iter target, iter source);
 
-		/// Extract the subtree starting at the indicated node, removing it from the original tree.
+		/// Extract the subtree starting at the indicated node, removing it from the origin tree.
 		tree                         move_out(iterator);
 		/// Inverse of take_out: inserts the given tree as previous sibling of indicated node by a 
 		/// move operation, that is, the given tree becomes empty. Returns iterator to the top node.
