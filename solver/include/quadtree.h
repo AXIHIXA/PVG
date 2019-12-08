@@ -15,14 +15,11 @@ class Region;
 class QuadTree
 {
 public:
-    // step must be 2^n
     QuadTree(
             const Region & region,
             int region_id,
             const cv::Mat & laplacian,
-            int step,
-            bool split_edge_neighbor,
-            const cv::Mat edge_neighbor_mask);
+            int step);
 
     const Eigen::SparseMatrix<double> & get_laplacian_basis() const;
 

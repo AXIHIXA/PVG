@@ -109,9 +109,7 @@ void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box
             region,
             index,
             laplacianImage,
-            8,
-            false,
-            edgeNeighborMask));
+            8));
 
     times[0] += clock() - t;
     t = clock();

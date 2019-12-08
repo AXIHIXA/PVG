@@ -14,9 +14,7 @@ QuadTree::QuadTree(
         const Region & region,
         int region_id,
         const cv::Mat & laplacian,
-        int step,
-        bool split_edge_neighbor,
-        const Mat edge_neighbor_mask
+        int step
         ) :
         region(region),
         region_id(region_id),
@@ -72,32 +70,6 @@ QuadTree::QuadTree(
             if (type == INNER)
             {
                 pseudo_laplacian.at<Vec3f>(ln, col) = laplacian.at<Vec3f>(mask_ori[0] + ln, mask_ori[1] + col);
-
-                if (split_edge_neighbor)
-                {
-                    for (int m = -2; m <= 2; ++m)
-                    {
-                        bool flag = false;
-                        for (int n = -2; n <= 2; ++n)
-                        {
-                            CPoint2i p(mask_ori[0] + ln + m, mask_ori[1] + col + n);
-                            if (p[0] >= 0 && p[0] < edge_neighbor_mask.rows && p[1] >= 0 &&
-                                p[1] < edge_neighbor_mask.cols)
-                            {
-                                if (edge_neighbor_mask.at<uchar>(p[0], p[1]) != 0)
-                                {
-                                    pseudo_laplacian.at<Vec3f>(ln, col) = Vec3f(-1e10, -1e10, -1e10);
-                                    flag = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (flag)
-                        {
-                            break;
-                        }
-                    }
-                }
             }
             else if (type == BOUNDARY)
             {
