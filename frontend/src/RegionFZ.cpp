@@ -809,12 +809,12 @@ void CRegionFZ::findBoundary()
     }
 }
 
-Mat CRegionFZ::getRegion()
+Mat CRegionFZ::getRegionMask()
 {
     return regionMask;
 }
 
-Mat CRegionFZ::getColor()
+Mat CRegionFZ::getColorMask()
 {
     return colorMask;
 }
@@ -861,20 +861,9 @@ void CRegionFZ::boundary(bool flag)
     out();
 #endif
 #endif
-
-    //    for (int r = 0; r < regionMask.rows; r++)
-    //    {
-    //        for (int c = 0; c < regionMask.cols; c++)
-    //        {
-    //            if (regionMask.at<int>(r, c) == 0)
-    //            {
-    //                st_debug("rm[%d][%d] == 0", r, c);
-    //            }
-    //        }
-    //    }
 }
 
-vector<vector<pair<cv::Vec2i, cv::Vec3f> > > CRegionFZ::lapEdge(unsigned int strokeID, const SQ_Stroke & ls_stroke)
+vector<vector<pair<cv::Vec2i, cv::Vec3f>>> CRegionFZ::lapEdge(unsigned int strokeID, const SQ_Stroke & ls_stroke)
 {
     init();
     vector<vector<pair<Vec2i, Vec3f> > > r;

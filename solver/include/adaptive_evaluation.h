@@ -20,7 +20,7 @@ public:
 
     ~AdaptiveEvaluation() = default;
 
-    void full_solution(
+    void solve(
             const Region & region,
             const BoundingBox<int> & rect,
             const CPoint2d & original,

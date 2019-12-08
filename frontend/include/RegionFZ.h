@@ -37,9 +37,9 @@ public:
 
     void boundary(bool flag);
 
-    cv::Mat getRegion();
+    cv::Mat getRegionMask();
 
-    cv::Mat getColor();
+    cv::Mat getColorMask();
 
     //m_boundary == 1
     std::vector<std::vector<std::pair<cv::Vec2i, cv::Vec3f >>>
@@ -51,7 +51,7 @@ public:
 
     void setSize(int sz);
 
-    cv::Mat get_sideMask()
+    cv::Mat getSideMask()
     {
         return sideMask;
     }

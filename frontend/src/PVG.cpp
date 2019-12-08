@@ -398,9 +398,9 @@ QPair<Region *, cv::Mat> PVG::discretization()
             CRegionFZ reg(size.height(), size.width(), m_strokes_scaled, 1.0, cv::Vec2i(0, 0));
             reg.boundary(false);
 
-            laplacian_image = reg.getColor();
-            region_mask = reg.getRegion();
-            side_mask = reg.get_sideMask();
+            laplacian_image = reg.getColorMask();
+            region_mask = reg.getRegionMask();
+            side_mask = reg.getSideMask();
 
             region.reset(new Region(region_mask, side_mask));
         }

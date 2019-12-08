@@ -139,7 +139,7 @@ void PoissonSolver::regionComputation(int index, const BoundingBox<double> & box
     box_.width = std::min((int) ceil(box.width * scale) + 1, result.cols - box_.col);
     box_.height = std::min((int) ceil(box.height * scale) + 1, result.rows - box_.row);
 
-    evaluators[index]->full_solution(
+    evaluators[index]->solve(
             region,
             box_,
             CPoint2d(box_.row / scale + origin[0], box_.col / scale + origin[1]),

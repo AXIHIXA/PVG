@@ -36,8 +36,8 @@ private:
 
 private:
     // solver
-    static std::vector<std::unique_ptr<QuadTree>> trees;
-    static std::vector<std::vector<cv::Vec3f>> coefs;
+    static std::vector<std::unique_ptr<QuadTree>> trees;  // quadtree
+    static std::vector<std::vector<cv::Vec3f>> coefs;     // control coefficient
     static std::vector<std::unique_ptr<AdaptiveEvaluation>> evaluators;
 
     // canvas
@@ -50,7 +50,6 @@ private:
 
     // renerded final PVG result
     cv::Mat result;
-
 };
 
 
