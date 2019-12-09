@@ -1,11 +1,12 @@
 #ifndef PARSECOLOR_HPP
 #define PARSECOLOR_HPP
 
-#include "Strokes.h"
+
 #include "interpolation.h"
-#include <tbb/parallel_for.h>
+#include "Strokes.h"
 #include <Eigen/Dense>
 #include <opencv2/core.hpp>
+#include <tbb/parallel_for.h>
 
 
 class CParseColor
@@ -21,7 +22,7 @@ public:
         with_tangents = tangents;
     }
 
-    void parse(QVector <SQ_Stroke> & m_strokes, int boundaryColor)
+    void parse(QVector<SQ_Stroke> & m_strokes, int boundaryColor)
     {
         using namespace alglib;
 
@@ -34,13 +35,17 @@ public:
             {
                 continue;
             }
+
             bool isPe = m_strokes[i].s_properties.isEmpty() || (bdColor == 2);
+
             if (m_strokes[i].s_mode == SQ_Stroke::CLOSED)
             {
                 m_strokes[i].s_points.pop_back();
                 m_strokes[i].s_points.push_back(m_strokes[i].s_points.at(0));
             }
+
             clear();
+
             if (isPe)
             {
                 moveTo(m_strokes[i].s_points.at(0), 0, isPe, PointProperties());
@@ -62,6 +67,7 @@ public:
                     newStrokes[i] = newStroke;
                 }
             }
+
             m_strokes[i].segs = segs;
             m_strokes[i].pps = pps;
             m_strokes[i].idx = idx;
@@ -79,7 +85,6 @@ public:
     }
 
 private:
-
     void clear()
     {
         segs.clear();
@@ -90,8 +95,12 @@ private:
     void moveTo(const QPointF & p, int id, bool isPropertyEmpty, const PointProperties & pp)
     {
         if (segs.empty() || segs.back() != p)
-        { segs.push_back(p); }
+        {
+            segs.push_back(p);
+        }
+
         idx.push_back(id);
+
         if (!isPropertyEmpty)
         {
             pps.push_back(pp);
@@ -109,9 +118,12 @@ private:
         {
             return QLineF(mp, lp).length() + QLineF(mp, rp).length() < 3;
         }
+
         double a = acos(QPointF::dotProduct(lp - mp, rp - mp) / (QLineF(mp, lp).length() * QLineF(mp, rp).length()));
+
         bool b = (QLineF(mp, lp).length() + QLineF(mp, rp).length() < 10 && a > CV_PI * 0.95) ||
                  (QLineF(mp, lp).length() + QLineF(mp, rp).length() < 2);
+
         return b;
     }
 
@@ -123,11 +135,14 @@ private:
     bool intersect_segs(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
     {
         double x0, y0;
+
         double d = (y2 - y1) * (x4 - x3) - (y4 - y3) * (x2 - x1);
+
         if (d != 0)
         {
             x0 = ((x2 - x1) * (x4 - x3) * (y3 - y1) + (y2 - y1) * (x4 - x3) * x1 - (y4 - y3) * (x2 - x1) * x3) / d;
             y0 = ((y2 - y1) * (y4 - y3) * (x3 - x1) + (x2 - x1) * (y4 - y3) * y1 - (x4 - x3) * (y2 - y1) * y3) / (-d);
+
             if ((x0 - x1) * (x0 - x2) <= 0 &&
                 (x0 - x3) * (x0 - x4) <= 0 &&
                 (y0 - y1) * (y0 - y2) <= 0 &&
@@ -136,12 +151,18 @@ private:
                 return true;
             }
         }
+
         return false;
     }
 
-    bool
-    intersect(const QPointF & lp, const QPointF & rp, const QPointF & w00, const alglib::real_1d_array & t, double lt,
-              double rt, const SQ_Stroke & stroke)
+    bool intersect(
+            const QPointF & lp,
+            const QPointF & rp,
+            const QPointF & w00,
+            const alglib::real_1d_array & t,
+            double lt,
+            double rt,
+            const SQ_Stroke & stroke)
     {
         int N = t.length(), idx_l, idx_r;
 
@@ -179,23 +200,30 @@ private:
 
         for (int i = idx_l; i < idx_r; i++)
         {
-            double x1 = (double) (stroke.s_points[i].x() - w00.x()), y1 = (double) (stroke.s_points[i].y() - w00.y());
-            double x2 = (double) (stroke.s_points[i + 1].x() - w00.x()), y2 = (double) (stroke.s_points[i + 1].y() -
-                                                                                        w00.y());
+            double x1 = (double) (stroke.s_points[i].x() - w00.x());
+            double y1 = (double) (stroke.s_points[i].y() - w00.y());
+            double x2 = (double) (stroke.s_points[i + 1].x() - w00.x());
+            double y2 = (double) (stroke.s_points[i + 1].y() - w00.y());
 
             double x3 = 0, y3 = 0, x4 = 0, y4 = height - 1;
+
             bool a = intersect_segs(x1, y1, x2, y2, x3, y3, x4, y4);
             x3 = 0, y3 = 0, x4 = width - 1, y4 = 0;
+
             bool b = intersect_segs(x1, y1, x2, y2, x3, y3, x4, y4);
             x3 = width - 1, y3 = height - 1, x4 = width - 1, y4 = 0;
+
             bool c = intersect_segs(x1, y1, x2, y2, x3, y3, x4, y4);
             x3 = width - 1, y3 = height - 1, x4 = 0, y4 = height - 1;
+
             bool d = intersect_segs(x1, y1, x2, y2, x3, y3, x4, y4);
+
             if ((a || b || c || d))
             {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -208,6 +236,7 @@ private:
         else if (abs(coef[1]) > 1e-6)
         {
             double delta = coef[2] * coef[2] - 4 * coef[1] * coef[3];
+
             if (delta >= 0)
             {
                 delta = sqrt(delta);
@@ -222,12 +251,14 @@ private:
     }
 
     //solve extrema points   ADDED BY HOU FEI
-    bool solve_extremal_points(const cv::Vec4d & coefs, std::pair< double, double > & t)
+    bool solve_extremal_points(const cv::Vec4d & coefs, std::pair<double, double> & t)
     {
         cv::Vec3d quadratic_coefs(3 * coefs[0], 2 * coefs[1], coefs[2]);
+
         if (abs(quadratic_coefs[0]) > 1e-6)
         {
             double delta = quadratic_coefs[1] * quadratic_coefs[1] - 4 * quadratic_coefs[0] * quadratic_coefs[2];
+
             if (delta >= 0)
             {
                 delta = sqrt(delta);
@@ -236,7 +267,9 @@ private:
                 return true;
             }
             else
-            { return false; }
+            {
+                return false;
+            }
         }
         else if (abs(quadratic_coefs[1]) > 1e-6)
         {
@@ -244,7 +277,9 @@ private:
             return true;
         }
         else
-        { return false; }
+        {
+            return false;
+        }
     }
 
     inline double eval_cubic(const cv::Vec4d & v, double t)
@@ -303,6 +338,7 @@ private:
         {
             p = t[i];
             pspline2diff2(psi, p, p0.rx(), d0.rx(), d00.rx(), p0.ry(), d0.ry(), d00.ry());
+
             if (stroke.s_mode == SQ_Stroke::CLOSED && (i + 1 == stroke.s_points.size() - 1))
             {
                 q = 1;
@@ -311,6 +347,7 @@ private:
             {
                 q = t[i + 1];
             }
+
             pspline2diff(psi, q, p3.rx(), d1.rx(), p3.ry(), d1.ry());
 
             Eigen::Matrix4d vA;
@@ -330,15 +367,21 @@ private:
 
             cv::Vec4d coeffs_x0(d.x(), c.x(), b.x(), a.x() - w00.x());
             solve_cubic(coeffs_x0, roots_x0);
+
             for (int j = 0; j < 3; j++)
             {
                 tt = roots_x0[j];
+
                 if (tt == -1)
-                { continue; }
+                {
+                    continue;
+                }
+
                 if (tt >= ll && tt <= rr)
                 {
                     double x, y;
                     pspline2calc(psi, tt, x, y);
+
                     if (y >= w00.y() && y <= w00.y() + height && abs(x - w00.x()) < 1e-5)
                     {
                         return true;
@@ -348,15 +391,21 @@ private:
 
             cv::Vec4d coeffs_x1(d.x(), c.x(), b.x(), a.x() - w00.x() - width + 1);
             solve_cubic(coeffs_x1, roots_x1);
+
             for (int j = 0; j < 3; j++)
             {
                 tt = roots_x1[j];
+
                 if (tt == -1)
-                { continue; }
+                {
+                    continue;
+                }
+
                 if (tt >= ll && tt <= rr)
                 {
                     double x, y;
                     pspline2calc(psi, tt, x, y);
+
                     if (y >= w00.y() && y <= w00.y() + height && abs(x - w00.x() - width + 1) < 1e-5)
                     {
                         return true;
@@ -366,15 +415,21 @@ private:
 
             cv::Vec4d coeffs_y0(d.y(), c.y(), b.y(), a.y() - w00.y());
             solve_cubic(coeffs_y0, roots_y0);
+
             for (int j = 0; j < 3; j++)
             {
                 tt = roots_y0[j];
+
                 if (tt == -1)
-                { continue; }
+                {
+                    continue;
+                }
+
                 if (tt >= ll && tt <= rr)
                 {
                     double x, y;
                     pspline2calc(psi, tt, x, y);
+
                     if (x >= w00.x() && x <= w00.x() + width && abs(y - w00.y()) < 1e-5)
                     {
                         return true;
@@ -384,15 +439,21 @@ private:
 
             cv::Vec4d coeffs_y1(d.y(), c.y(), b.y(), a.y() - w00.y() - height + 1);
             solve_cubic(coeffs_y1, roots_y1);
+
             for (int j = 0; j < 3; j++)
             {
                 tt = roots_y1[j];
+
                 if (tt == -1)
-                { continue; }
+                {
+                    continue;
+                }
+
                 if (tt >= ll && tt <= rr)
                 {
                     double x, y;
                     pspline2calc(psi, tt, x, y);
+
                     if (x >= w00.x() && x <= w00.x() + width && abs(y - w00.y() - height + 1) < 1e-5)
                     {
                         return true;
@@ -418,7 +479,7 @@ private:
             idx_r = N - 1;
         }
 
-        QVector < QVector < QPair < QPointF, cv::Vec3d >> > key_points(idx_r);
+        QVector<QVector<QPair<QPointF, cv::Vec3d >>> key_points(idx_r);
 
         tbb::parallel_for(idx_l, idx_r, [&](int i)
         {
@@ -522,7 +583,9 @@ private:
             {
                 double tt = roots_x0[j];
                 if (tt == -1)
-                { continue; }
+                {
+                    continue;
+                }
                 if (tt >= ll && tt <= rr)
                 {
                     double x, y, dx, dy;
@@ -544,7 +607,9 @@ private:
             {
                 double tt = roots_x1[j];
                 if (tt == -1)
-                { continue; }
+                {
+                    continue;
+                }
                 if (tt >= ll && tt <= rr)
                 {
                     double x, y, dx, dy;
@@ -565,7 +630,9 @@ private:
             {
                 double tt = roots_y0[j];
                 if (tt == -1)
-                { continue; }
+                {
+                    continue;
+                }
                 if (tt >= ll && tt <= rr)
                 {
                     double x, y, dx, dy;
@@ -586,7 +653,9 @@ private:
             {
                 double tt = roots_y1[j];
                 if (tt == -1)
-                { continue; }
+                {
+                    continue;
+                }
                 if (tt >= ll && tt <= rr)
                 {
                     double x, y, dx, dy;
@@ -641,9 +710,13 @@ private:
         bool b = (!in(lp.y() - w00.y(), lp.x() - w00.x()) && !in(rp.y() - w00.y(), rp.x() - w00.x()) &&
                   !in(mp.y() - w00.y(), mp.x() - w00.x()));
         if (b)
-        { b = (!intersect_cubic(lp, rp, w00, t, lt, rt, stroke, p)); }
+        {
+            b = (!intersect_cubic(lp, rp, w00, t, lt, rt, stroke, p));
+        }
         if (b)
-        { b = (!intersect(lp, rp, w00)); }
+        {
+            b = (!intersect(lp, rp, w00));
+        }
 
         if (a || b)
         {
@@ -719,8 +792,8 @@ private:
 
 
     void calcColor(
-            PointProperties & s_pp, const alglib::real_1d_array & t, double pos, const QVector <QPointF> & ctrlPts,
-            const QVector <PointProperties> & ppCtrl, int & idx, SQ_Stroke::StrokeMode pathMode, bool isPe)
+            PointProperties & s_pp, const alglib::real_1d_array & t, double pos, const QVector<QPointF> & ctrlPts,
+            const QVector<PointProperties> & ppCtrl, int & idx, SQ_Stroke::StrokeMode pathMode, bool isPe)
     {
         int N = t.length();
         if (ppCtrl.size() == 0 || bdColor == 2)
@@ -851,10 +924,10 @@ private:
 
 private:
 
-    QVector <QPointF> segs;
-    QVector <PointProperties> pps;
-    QVector< int > idx;
-    QVector <SQ_Stroke> newStrokes;
+    QVector<QPointF> segs;
+    QVector<PointProperties> pps;
+    QVector<int> idx;
+    QVector<SQ_Stroke> newStrokes;
 
     int bdColor;
     int height, width;

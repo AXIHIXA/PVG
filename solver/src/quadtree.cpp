@@ -57,12 +57,12 @@ QuadTree::QuadTree(
     {
         for (int col = 0; col < mask.cols; ++col)
         {
-            if (region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col) != OUTER
-                || region.type(region_id, mask_ori[0] + ln + 1, mask_ori[1] + col) != OUTER
-                || region.type(region_id, mask_ori[0] + ln - 1, mask_ori[1] + col) != OUTER
-                || region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col + 1) != OUTER
-                || region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col - 1) != OUTER
-                || is_image_boundary(region, 2, mask_ori[0] + ln, mask_ori[1] + col))
+            if (region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col) != OUTER ||
+                region.type(region_id, mask_ori[0] + ln + 1, mask_ori[1] + col) != OUTER ||
+                region.type(region_id, mask_ori[0] + ln - 1, mask_ori[1] + col) != OUTER ||
+                region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col + 1) != OUTER ||
+                region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col - 1) != OUTER ||
+                is_image_boundary(region, 2, mask_ori[0] + ln, mask_ori[1] + col))
             {
                 mask.at<uchar>(ln, col) = 255;
             }
@@ -76,6 +76,7 @@ QuadTree::QuadTree(
         for (int col = 0; col < pseudo_laplacian.cols; ++col)
         {
             PointType type = region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col);
+
             if (type == INNER)
             {
                 pseudo_laplacian.at<Vec3f>(ln, col) = laplacian.at<Vec3f>(mask_ori[0] + ln, mask_ori[1] + col);
@@ -86,11 +87,11 @@ QuadTree::QuadTree(
             }
             else
             {
-                if (region.type(region_id, mask_ori[0] + ln + 1, mask_ori[1] + col) != OUTER
-                    || region.type(region_id, mask_ori[0] + ln - 1, mask_ori[1] + col) != OUTER
-                    || region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col + 1) != OUTER
-                    || region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col - 1) != OUTER
-                    || is_image_boundary(region, 2, mask_ori[0] + ln, mask_ori[1] + col))
+                if (region.type(region_id, mask_ori[0] + ln + 1, mask_ori[1] + col) != OUTER ||
+                    region.type(region_id, mask_ori[0] + ln - 1, mask_ori[1] + col) != OUTER ||
+                    region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col + 1) != OUTER ||
+                    region.type(region_id, mask_ori[0] + ln, mask_ori[1] + col - 1) != OUTER ||
+                    is_image_boundary(region, 2, mask_ori[0] + ln, mask_ori[1] + col))
                 {
                     pseudo_laplacian.at<Vec3f>(ln, col) = Vec3f(-1e10, -1e10, -1e10);
                 }
@@ -103,6 +104,7 @@ QuadTree::QuadTree(
     ///
 
     int cell_width = step;
+
     for (int depth = 1; cell_width > 1; ++depth)
     {
         if (quadtree.max_depth() < depth)
@@ -190,12 +192,11 @@ QuadTree::QuadTree(
         if (ite->type == OUTER)
         {
             if (ite->width == 1 &&
-                (region.type(region_id, ite->row + 1, ite->col) != OUTER
-                 || region.type(region_id, ite->row - 1, ite->col) != OUTER
-                 || region.type(region_id, ite->row, ite->col + 1) != OUTER
-                 || region.type(region_id, ite->row, ite->col - 1) != OUTER
-                 || is_image_boundary(region, 2, ite->row, ite->col))
-                    )
+                (region.type(region_id, ite->row + 1, ite->col) != OUTER ||
+                 region.type(region_id, ite->row - 1, ite->col) != OUTER ||
+                 region.type(region_id, ite->row, ite->col + 1) != OUTER ||
+                 region.type(region_id, ite->row, ite->col - 1) != OUTER ||
+                 is_image_boundary(region, 2, ite->row, ite->col)))
             {
                 ite->index = count++;
             }
@@ -244,7 +245,6 @@ bool QuadTree::should_split(
         {
             CPoint2i p(node.row - mask_ori[0] + i, node.col - mask_ori[1] + j);
 
-//            if (p[0] >= 0 && p[1] >= 0 && p[0] < mask.rows && p[1] < mask.cols)
             if (0 <= p[0] && p[0] < mask.rows && 0 <= p[1] && p[1] < mask.cols)
             {
                 if (mask.at<uchar>(p[0], p[1]) != 0)

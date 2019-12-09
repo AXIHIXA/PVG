@@ -353,47 +353,41 @@ void CRegionFZ::plotLine(
     {
         return;
     }
+
     int x0 = ox, y0 = oy;
     Vec2f cd1, cd2;
+
     if (in(y0, x0))
     {
         nodeMask.at<bool>(y0, x0) = true;
         nm1.at<bool>(y0, x0) = true;
     }
-    //    if (ls == 0)
-    //    {
-    //        if (!tmp_vec3.first.empty())
-    //        {
-    //            tmp_vec3.first.pop_back();
-    //        }
-    //    }
-    //    else
-    //    {
-    //        if (!tmp_vec3.second.empty())
-    //        {
-    //            tmp_vec3.second.pop_back();
-    //        }
-    //    }
+
     if (pixel_num > 0)
     {
         pixel_num--;
     }
+
     segmentColorVec.push_back(SegmentFZ(y0, x0, y1, x1, c11, c12, c21, c22, mode));
     cd1 = CGeometry::normVleft(y0, y1, x0, x1), cd2 = -cd1;
+
     int lbx = (x1 - x0), lby = (y1 - y0);
     int dx = abs(y1 - y0), dy = -abs(x1 - x0);
     int sx = y0 < y1 ? 1 : -1, sy = x0 < x1 ? 1 : -1;
     bool start = (k > 0);
     bool end;
-    int err = dx + dy, e2, d;
+    int err = dx + dy, e2, d;  // Bresenham's Algorithm
+
     for (;;)
     {
         d = lbx * (y0 - oy) - lby * (x0 - ox);
         end = (y0 == y1) && (x0 == x1) && (k < 2);
+
         if (in(y0, x0))
         {
-            //added by HOU FEI
-            if (sideMask.at<int>(y0, x0) == 0 || !is_end_point(y0, x0, stroke_ID) ||
+            // added by HOU FEI
+            if (sideMask.at<int>(y0, x0) == 0 ||
+                !is_end_point(y0, x0, stroke_ID) ||
                 is_end_point(y0, x0, abs(sideMask.at<int>(y0, x0)) - 1))
             {
                 // d: 'err'.
@@ -406,6 +400,7 @@ void CRegionFZ::plotLine(
                 pixel_num++;
             }
         }
+
         start = false;
         e2 = 2 * err;
 
@@ -415,25 +410,21 @@ void CRegionFZ::plotLine(
             {
                 break;
             }
+
             err += dy;
             y0 += sx;
         }
+
         if (e2 <= dx)
         {
             if (x0 == x1)
             {
                 break;
             }
+
             err += dx;
             x0 += sy;
         }
-#if 0
-        d = lbx*(y0-oy)-lby*(x0-ox);
-        if ((2*err>=dy && y0==y1) || (2*err<=dx && x0==x1))
-            LabelBoundary(y0,x0,lbx,lby,d,segmentColorVec.size(),cd1,cd2,strokeN,true,ls);
-        else
-            LabelBoundary(y0,x0,lbx,lby,d,segmentColorVec.size(),cd1,cd2,strokeN,false,ls);
-#endif
     }
 }
 
@@ -446,8 +437,10 @@ bool CRegionFZ::is_end_point(int y, int x, int ID)
     {
         return false;
     }
+
     double d1 = (m_strokes[ID].s_points.front() - QPointF(x, y)).manhattanLength();
     double d2 = (m_strokes[ID].s_points.back() - QPointF(x, y)).manhattanLength();
+
     if (min(d1, d2) <= 2)
     {
         return true;
@@ -477,25 +470,24 @@ CRegionFZ::plotColor(Vec3f & c11, Vec3f & c12, Vec3f & c21, Vec3f & c22, const Q
 
 void CRegionFZ::plotStrokes()
 {
-    //	vec3.clear();
-    //	vec3.resize(m_strokes.size());
-
     for (int i = 0; i < m_strokes.size(); i++)
     {
         vec1.clear();
         vec2.clear();
-        //        tmp_vec3.first.clear();
-        //        tmp_vec3.second.clear();
         vecMask = Mat::zeros(height, width, CV_8UC1);  // vecMask cleaned!
+
         stroke_ID = i;
         pixel_num = 0;
         bool lastSide = 0;
+
         if (m_strokes[i].segs.size() <= 1)
         {
             continue;
         }
+
         li1 = -1, li2 = -1;
         unsigned char f;
+
         for (int k = 0; k < m_strokes[i].segs.size() - 1; k++)
         {
             if (k == 0)
@@ -510,14 +502,19 @@ void CRegionFZ::plotStrokes()
             {
                 f = 1;
             }
-            if (!in((int) m_strokes[i].segs[k].y() + 0.5 - w00[0], (int) m_strokes[i].segs[k].x() + 0.5 - w00[1]) &&
+
+            if (!in((int) m_strokes[i].segs[k].y() + 0.5 - w00[0],
+                    (int) m_strokes[i].segs[k].x() + 0.5 - w00[1]) &&
                 !in((int) m_strokes[i].segs[k + 1].y() + 0.5 - w00[0],
                     (int) m_strokes[i].segs[k + 1].x() + 0.5 - w00[1]))
             {
                 continue;
             }
+
             Vec3f c11, c12, c21, c22;
+
             plotColor(c11, c12, c21, c22, m_strokes[i].pps, k);
+
             plotLine(
                     (int) m_strokes[i].segs[k].y() + 0.5 - w00[0],
                     (int) m_strokes[i].segs[k + 1].y() + 0.5 - w00[0],

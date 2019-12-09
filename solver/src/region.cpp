@@ -45,9 +45,11 @@ Region::Region(const cv::Mat& mask, const cv::Mat& sideMask) :mask(mask)
 		for (int j = 0; j < mask.cols; ++j)
 		{
 			int id = abs(mask.at<int>(i, j));
+
 			if (id != 0)
 			{
 				--id;
+
 				if (i < min[id][0]) min[id][0] = i;
 				if (i > max[id][0]) max[id][0] = i;
 				if (j < min[id][1]) min[id][1] = j;
@@ -354,8 +356,8 @@ void Region::set_side_source(const std::vector<std::vector<std::pair<cv::Vec2i, 
 	// Xi Han: mark points on lap edge that:
 	// 1. in DC region (regionMask > 0)
 	// 2. not on DC curve (sideMask == 0)
-	// case I: vecMask = 1 (sample pt DC): -side_mask_index
-	// case II: vecMask = 2 (neibor pt DC): side_mask_index
+	// case I: vecMask = 1 (sample pt PC): -side_mask_index
+	// case II: vecMask = 2 (neibor pt PC): side_mask_index
 
     for (size_t i = 0; i < pts[0].size(); i++)
 	{

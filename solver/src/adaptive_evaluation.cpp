@@ -81,7 +81,7 @@ void AdaptiveEvaluation::solve(
 
     tbb::parallel_for(0, rect.height, [&](int i)
     {
-        //st_debug("AdaptiveEvaluation::solve for region %d row %d / %d", region_index, i, rect.height);
+        st_debug("AdaptiveEvaluation::solve for region %d row %d / %d", region_index, i, rect.height);
 
         for (int j = 0; j < rect.width; ++j)
         {

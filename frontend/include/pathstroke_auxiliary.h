@@ -24,9 +24,11 @@ template <class T>
 int count_neighbor(const cv::Mat & image, const CPoint2i & p, T id)
 {
     int count = 0;
+
     for (int i = 0; i < 4; i++)
     {
         CPoint2i pt = p + trans[i];
+
         if (pt[0] >= 0 && pt[0] < image.rows && pt[1] >= 0 && pt[1] < image.cols)
         {
             if (image.at<T>(pt[0], pt[1]) == id)
@@ -35,6 +37,7 @@ int count_neighbor(const cv::Mat & image, const CPoint2i & p, T id)
             }
         }
     }
+
     return count;
 }
 
